@@ -31,11 +31,15 @@ tokens = tuple([
     "NE_OP",
     "NEWLINE",
     "LPAREN",
-    "RPAREN"
+    "RPAREN",
+    "ASSIGN",
+    "WHITESPACE",
+    "COMMENT"
 ] + list(keywords.values()))
 
 # Ignore symbol
-t_ignore = r" "
+t_ignore_WHITESPACE = r"\s+"
+t_ignore_COMMENT = r"\#.*"
 
 # Regular expressions for complex tokens
 word = r"[a-zA-Z_]+"
@@ -54,6 +58,7 @@ t_EQ_OP = r"=="
 t_NE_OP = r"~="
 t_LPAREN = r"\("
 t_RPAREN = r"\)"
+t_ASSIGN = r"="
 
 
 def t_error(token):
@@ -89,6 +94,10 @@ if (a == 245)
     do_something
 else
     to_do
+
+
+
+# Just a comment
 '''
 
 lexer.input(data)
