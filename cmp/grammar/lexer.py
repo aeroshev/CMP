@@ -68,19 +68,19 @@ class Lexer:
 
     @TOKEN(word)
     def t_WORD(self, token: LexToken) -> LexToken:
-        """[a-zA-Z_]+"""
+        """Token [a-zA-Z_]+"""
         token.type = Lexer.keywords.get(token.value, "WORD")
         return token
 
     @TOKEN(number)
     def t_NUMBER(self, token: LexToken) -> LexToken:
-        """[digit]+"""
+        """Token [digit]+"""
         token.value = int(token.value)
         return token
 
     @TOKEN(newline)
     def t_NEWLINE(self, token: LexToken) -> None:
-        """\n+"""
+        """Token \n+"""
         token.lexer.lineno += len(token.value)
 
     def build(self, **kwargs):
