@@ -1,9 +1,8 @@
 from cmp.grammar.lexer import Lexer
 
 
-def test_lexer(string) -> None:
+def test_lexer(string, right_tokens) -> None:
     m = Lexer()
-    m.build()
     m.input(string)
-    for token in m.token():
-        print(token)
+    for gen_tok, rhg_tok in zip(m.token(), right_tokens):
+        assert gen_tok.type == rhg_tok
