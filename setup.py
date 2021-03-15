@@ -7,7 +7,7 @@ def read(filename: str) -> str:
 
 
 setup(
-    name="cmp",
+    name="pycmp",
     version="0.1.0",
     python_requires=">=3.9.0",
     packages=find_packages(),
@@ -27,7 +27,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "cmp = cmp.__main__:main"
+            "pycmp = cmp.__main__:main"
         ]
     },
     download_url="",
