@@ -2,6 +2,7 @@ import ply.yacc as yacc
 
 from cmp.grammar import Lexer
 from cmp.helpers import LogMixin
+from cmp.ast import *
 
 
 class Parser(LogMixin):
@@ -40,6 +41,10 @@ class Parser(LogMixin):
                            | '[' ']'
                            | '[' array_list ']'
         """
+        if len(p) == 2:
+            ...
+        else:
+            ...
 
     def p_postfix_expression(self, p):
         """
@@ -131,10 +136,11 @@ class Parser(LogMixin):
                    | expression ':' or_expression
         """
 
-    def p_assignment_expression(self, p):
+    def p_assignment_expression(self, p: list) -> None:
         """
         assignment_expression : postfix_expression '=' expression
         """
+        p[0] = AssignmentNode(lhs=p[1], rhs=p[3])
 
     def p_eostmt(self, p):
         """
@@ -237,6 +243,10 @@ class Parser(LogMixin):
         func_identifier_list : IDENTIFIER
                              | func_identifier_list ',' IDENTIFIER
         """
+        if len(p) == 2:
+            p[0] = [p[1]]
+        else:
+            p[0] = [*p[1], p[3]]
 
     def p_func_return_list(self, p):
         """
