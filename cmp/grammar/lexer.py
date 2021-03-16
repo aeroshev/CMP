@@ -1,9 +1,9 @@
-from typing import Generator
-
 from ply.lex import TOKEN, LexToken, lex
 
+from cmp.helpers import LogMixin
 
-class Lexer:
+
+class Lexer(LogMixin):
     # Keywords MATLAB
     keywords = {
         # Loops keywords
@@ -133,7 +133,9 @@ class Lexer:
         self._lexer.input(data_)
 
     def token(self) -> LexToken:
-        return self._lexer.token()
+        last_token = self._lexer.token()
+        self.logger.info(f"Lexer: Token -> {last_token}")
+        return last_token
 
 
 data = '''

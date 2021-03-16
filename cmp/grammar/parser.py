@@ -1,9 +1,10 @@
 import ply.yacc as yacc
 
 from cmp.grammar import Lexer
+from cmp.helpers import LogMixin
 
 
-class Parser:
+class Parser(LogMixin):
     def __init__(
             self,
             lexer=Lexer,
@@ -24,10 +25,10 @@ class Parser:
         self._err_flag = False
 
     def parse(self, text, filename='', debug_level=True):
-        return self.parser.parse(
+        return self.parser.parsedebug(
             input=text,
             lexer=self.lex,
-            debug=debug_level
+            debug=self.logger
         )
 
     def p_primary_expression(self, p):
