@@ -4,8 +4,6 @@ import ply.yacc as yacc
 
 from cmp.grammar import Lexer
 
-logger = logging.getLogger()
-
 
 class Parser:
     def __init__(
@@ -30,8 +28,7 @@ class Parser:
     def parse(self, text, filename='', debug_level=True):
         return self.parser.parse(
             input=text,
-            lexer=self.lex,
-            debug=logger
+            lexer=self.lex
         )
 
     def p_primary_expression(self, p):

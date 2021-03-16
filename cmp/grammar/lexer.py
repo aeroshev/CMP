@@ -37,6 +37,11 @@ class Lexer:
 
     # All tokens
     tokens = tuple([
+        # Complex objects
+        "IDENTIFIER",
+        "CONSTANT",
+        "STRING_LITERAL",
+        "CONTINUATION",
         # Logic operations
         "LE_OP", "GE_OP", "EQ_OP", "NE_OP",
         # "AND_AND", "OR_OR",
@@ -48,8 +53,7 @@ class Lexer:
         # "MINUS_EQ", "MINUS_MINUS",
         # Array operations
         "ARRAY_MUL", "ARRAY_POW", "ARRAY_DIV", "ARRAY_RDIV", "TRANSPOSE",
-        # Complex objects
-        "IDENTIFIER",
+
         # Ignore
         "WHITESPACE",
         "COMMENT"
@@ -57,7 +61,7 @@ class Lexer:
 
     # Ignore symbol
     t_ignore_WHITESPACE = r"\s+"
-    t_ignore_COMMENT = r"\%.*"
+    t_ignore_COMMENT = r"\%.*\n"
 
     # literals
     literals = [
@@ -67,8 +71,6 @@ class Lexer:
     ]
 
     # Regular expressions for complex tokens
-    newline = r"\n+"
-
     D = r"[0-9]"
     L = r"[a-zA-Z]_"
     E = fr"[DdEe][+-]?{D}+"
@@ -88,6 +90,7 @@ class Lexer:
     t_GE_OP = r"\>="
     t_EQ_OP = r"=="
     t_NE_OP = r"(~=)|(!=)"
+    t_CONTINUATION = r"[...].*\n"
     # t_AND_AND = r"\&\&"
     # t_OR_OR = r"\|\|"
     # Plus operations
@@ -107,24 +110,28 @@ class Lexer:
 
     @TOKEN(constant_1 + constant_2 + constant_3)
     def t_CONSTANT(self, token_: LexToken) -> LexToken:
-        """"""
         ...
 
     @TOKEN(identifier)
     def t_IDENTIFIER(self, token_: LexToken) -> LexToken:
-        """"""
         token_.type = Lexer.keywords.get(token_.value, "IDENTIFIER")
         return token_
 
+    def t_STRING_LITERAL(self, token_: LexToken) -> LexToken:
+        r"""\w+"""
+        token_.type = Lexer.keywords.get(token_.value, "STRING_LITERAL")
+        return token_
+
     @TOKEN(transpose_1 + transpose_2)
-    def t_TRANSPOSE(self, token: LexToken) -> LexToken:
+    def t_TRANSPOSE(self, token_: LexToken) -> LexToken:
         """"""
         ...
 
-    @TOKEN(newline)
-    def t_NEWLINE(self, token_: LexToken) -> None:
-        """Token \n+"""
-        token_.lexer.lineno += len(token_.value)
+    def t_NEWLINE(self, token_: LexToken) -> LexToken:
+        r"""\n"""
+        token_.lexer.lineno += 1
+        token_.type = 'CR'
+        return token_
 
     def input(self, data_: str) -> None:
         self._lexer.input(data_)
