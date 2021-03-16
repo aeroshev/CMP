@@ -1,6 +1,6 @@
 from typing import Generator
 
-from ply.lex import LexToken, TOKEN, lex
+from ply.lex import TOKEN, LexToken, lex
 
 
 class Lexer:

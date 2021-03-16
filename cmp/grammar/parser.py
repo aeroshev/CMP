@@ -2,8 +2,7 @@ import logging
 
 import ply.yacc as yacc
 
-from lexer import Lexer
-
+from cmp.grammar import Lexer
 
 logger = logging.getLogger()
 

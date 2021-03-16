@@ -1,5 +1,9 @@
+#!/usr/bin/env python3
+from cmp.cli import Command
+
+
 def main() -> None:
-    print("Not implement entry point")
+    Command().execute()
 
 
 if __name__ == '__main__':
