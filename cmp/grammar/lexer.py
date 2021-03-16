@@ -53,11 +53,14 @@ class Lexer(LogMixin):
         # "MINUS_EQ", "MINUS_MINUS",
         # Array operations
         "ARRAY_MUL", "ARRAY_POW", "ARRAY_DIV", "ARRAY_RDIV", "TRANSPOSE",
-        "NEWLINE"
+        "NEWLINE",
+        # Ignored
+        "WHITESPACE", "COMMENTS"
     ] + list(keywords.values()))
 
     # Ignore symbol
-    t_ignore = r"\s+" + r"\%.*\n"
+    t_ignore_WHITESPACE = r"\s+"
+    t_ignore_COMMENTS = r"\%.*"
 
     # literals
     literals = [
@@ -143,6 +146,7 @@ if (a == 245)
     do_something
 else
     to_do
+end
 
 
 
@@ -153,5 +157,7 @@ else
 if __name__ == '__main__':
     m = Lexer()
     m.input(data)
-    for token in m.token():
+    token = 'not none'
+    while token:
+        token = m.token()
         print(token)
