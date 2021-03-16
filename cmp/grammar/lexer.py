@@ -38,19 +38,18 @@ class Lexer:
     # All tokens
     tokens = tuple([
         # Logic operations
-        "LE_OP", "LT_OP", "GE_OP", "GT_OP", "EQ_OP", "NE_OP",
-        "AND_AND", "OR_OR",
+        "LE_OP", "GE_OP", "EQ_OP", "NE_OP",
+        # "AND_AND", "OR_OR",
         # Arithmetic operations
-        "DIV_DIV", "TRANSPOSE",
+        # "DIV_DIV",
         # Plus operations
-        "PLUS_EQ", "PLUS_PLUS",
+        # "PLUS_EQ", "PLUS_PLUS",
         # Minus operations
-        "MINUS_EQ", "MINUS_MINUS",
-        # Dot operations
-        "DOT", "DOT_DIV", "DOT_DIV_EQ", "DOT_EXP", "DOT_MUL", "DOT_MUL_EQ",
+        # "MINUS_EQ", "MINUS_MINUS",
+        # Array operations
+        "ARRAY_MUL", "ARRAY_POW", "ARRAY_DIV", "ARRAY_RDIV", "TRANSPOSE",
         # Complex objects
-        "ID",
-        "NUMBER",
+        "IDENTIFIER",
         # Ignore
         "WHITESPACE",
         "COMMENT"
@@ -78,34 +77,25 @@ class Lexer:
     constant_2 = fr'{D}*"."{D}+({E})?'
     constant_3 = fr'{D}+"."{D}*({E})?'
 
+    transpose_1 = r"'"
+    transpose_2 = r"\.'"
+
     identifier = fr'{L}({L}|{D})*'
 
     # Regular expressions for simple tokens
     # Logic operations
     t_LE_OP = r"<="
-    t_LT_OP = r"\<"
     t_GE_OP = r"\>="
-    t_GT_OP = r"\>"
     t_EQ_OP = r"=="
     t_NE_OP = r"(~=)|(!=)"
-    t_AND_AND = r"\&\&"
-    t_OR_OR = r"\|\|"
-    # Arithmetic operations
-    t_TRANSPOSE = r"'"
+    # t_AND_AND = r"\&\&"
+    # t_OR_OR = r"\|\|"
     # Plus operations
-    t_PLUS_EQ = r"\+="
-    t_PLUS_PLUS = r"\+\+"
+    # t_PLUS_EQ = r"\+="
+    # t_PLUS_PLUS = r"\+\+"
     # Minus operations
-    t_MINUS_EQ = r"\-="
-    t_MINUS_MINUS = r"\--"
-    # Dot operations
-    # t_DOT = r"\."
-    # t_DOT_DIV = r"\./"
-    # t_DOT_DIV_EQ = r"\./="
-    # t_DOT_EXP = r"\.\^"
-    # t_DOT_MUL = r"\.\*"
-    # t_DOT_MUL_EQ = r"\.\*="
-    # Brackets
+    # t_MINUS_EQ = r"\-="
+    # t_MINUS_MINUS = r"\-\-"
 
     def __init__(self, **kwargs) -> None:
         self._lexer = lex(module=self, optimize=1, **kwargs)
@@ -123,8 +113,13 @@ class Lexer:
     @TOKEN(identifier)
     def t_IDENTIFIER(self, token_: LexToken) -> LexToken:
         """"""
-        token_.type = Lexer.keywords.get(token_.value, "ID")
+        token_.type = Lexer.keywords.get(token_.value, "IDENTIFIER")
         return token_
+
+    @TOKEN(transpose_1 + transpose_2)
+    def t_TRANSPOSE(self, token: LexToken) -> LexToken:
+        """"""
+        ...
 
     @TOKEN(newline)
     def t_NEWLINE(self, token_: LexToken) -> None:
