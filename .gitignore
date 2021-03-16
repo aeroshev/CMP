@@ -130,3 +130,7 @@ dmypy.json
 
 # Pycharm IDE
 /.idea
+
+# PLY generated files
+lextab.py
+parser.out
