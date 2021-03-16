@@ -1,5 +1,3 @@
-import logging
-
 import ply.yacc as yacc
 
 from cmp.grammar import Lexer
@@ -16,7 +14,7 @@ class Parser:
         self.tokens = self.lex.tokens
         self.parser = yacc.yacc(
             module=self,
-            start='primary_expression',
+            start='translation_unit',
             debug=yacc_debug,
             outputdir=tab_out_put_dir,
             optimize=1
@@ -28,7 +26,8 @@ class Parser:
     def parse(self, text, filename='', debug_level=True):
         return self.parser.parse(
             input=text,
-            lexer=self.lex
+            lexer=self.lex,
+            debug=debug_level
         )
 
     def p_primary_expression(self, p):
@@ -46,7 +45,6 @@ class Parser:
         postfix_expression : primary_expression
                            | array_expression
                            | postfix_expression TRANSPOSE
-                           | postfix_expression NCTRANSPOSE
         """
 
     def p_index_expression(self, p):
@@ -84,7 +82,6 @@ class Parser:
         multiplicative_expression : unary_expression
                                   | multiplicative_expression '*' unary_expression
                                   | multiplicative_expression '/' unary_expression
-                                  | multiplicative_expression '\\' unary_expression
                                   | multiplicative_expression '^' unary_expression
                                   | multiplicative_expression ARRAY_MUL unary_expression
                                   | multiplicative_expression ARRAY_DIV unary_expression
@@ -142,7 +139,7 @@ class Parser:
         """
         eostmt : ','
                | ';'
-               | CR
+               | NEWLINE
         """
 
     def p_statement(self, p):
@@ -236,8 +233,8 @@ class Parser:
 
     def p_func_identifier_list(self, p):
         """
-        func_return_list : IDENTIFIER
-                         | func_identifier_list ',' IDENTIFIER
+        func_identifier_list : IDENTIFIER
+                             | func_identifier_list ',' IDENTIFIER
         """
 
     def p_func_return_list(self, p):

@@ -41,7 +41,7 @@ class Lexer:
         "IDENTIFIER",
         "CONSTANT",
         "STRING_LITERAL",
-        "CONTINUATION",
+        # "CONTINUATION",
         # Logic operations
         "LE_OP", "GE_OP", "EQ_OP", "NE_OP",
         # "AND_AND", "OR_OR",
@@ -53,15 +53,11 @@ class Lexer:
         # "MINUS_EQ", "MINUS_MINUS",
         # Array operations
         "ARRAY_MUL", "ARRAY_POW", "ARRAY_DIV", "ARRAY_RDIV", "TRANSPOSE",
-
-        # Ignore
-        "WHITESPACE",
-        "COMMENT"
+        "NEWLINE"
     ] + list(keywords.values()))
 
     # Ignore symbol
-    t_ignore_WHITESPACE = r"\s+"
-    t_ignore_COMMENT = r"\%.*\n"
+    t_ignore = r"\s+" + r"\%.*\n"
 
     # literals
     literals = [
@@ -90,7 +86,7 @@ class Lexer:
     t_GE_OP = r"\>="
     t_EQ_OP = r"=="
     t_NE_OP = r"(~=)|(!=)"
-    t_CONTINUATION = r"[...].*\n"
+    # t_CONTINUATION = r"[...].*\n"
     # t_AND_AND = r"\&\&"
     # t_OR_OR = r"\|\|"
     # Plus operations
@@ -130,15 +126,14 @@ class Lexer:
     def t_NEWLINE(self, token_: LexToken) -> LexToken:
         r"""\n"""
         token_.lexer.lineno += 1
-        token_.type = 'CR'
+        token_.type = 'NEWLINE'
         return token_
 
     def input(self, data_: str) -> None:
         self._lexer.input(data_)
 
-    def token(self) -> Generator[LexToken, None, None]:
-        for token_ in self._lexer:
-            yield token_
+    def token(self) -> LexToken:
+        return self._lexer.token()
 
 
 data = '''

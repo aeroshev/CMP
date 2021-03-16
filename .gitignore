@@ -133,4 +133,5 @@ dmypy.json
 
 # PLY generated files
 lextab.py
+parsetab.py
 parser.out
