@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Any, Dict, List
 
 
 class Node(ABC):
@@ -6,5 +7,5 @@ class Node(ABC):
     __slots__ = ()
 
     @abstractmethod
-    def children(self):
+    def children(self) -> List[Dict[str, Any]]:
         ...

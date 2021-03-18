@@ -1,8 +1,8 @@
 import ply.yacc as yacc
 
+from cmp.ast import *
 from cmp.grammar import Lexer
 from cmp.helpers import LogMixin
-from cmp.ast import *
 
 
 class Parser(LogMixin):
@@ -110,6 +110,17 @@ class Parser(LogMixin):
                               | relational_expression LE_OP additive_expression
                               | relational_expression GE_OP additive_expression
         """
+        handlers = {
+            "<": LowerRelationalNode,
+            ">": GreaterRelationalNode,
+            "LE_OP": LowerEqualRelationalNode,
+            "GE_OP": GreaterEqualRelationalNode
+        }
+
+        if len(p) == 4:
+            p[0] = handlers[p[2].type](p[1], p[3])
+        else:
+            p[0] = p[1]
 
     def p_equality_expression(self, p):
         """
@@ -117,6 +128,15 @@ class Parser(LogMixin):
                             | equality_expression EQ_OP relational_expression
                             | equality_expression NE_OP relational_expression
         """
+        handlers = {
+            "EQ_OP": PositiveEqualityNode,
+            "NE_OP": NegativeEqualityNode
+        }
+
+        if len(p) == 4:
+            p[0] = handlers[p[2].type](p[1], p[3])
+        else:
+            p[0] = p[1]
 
     def p_and_expression(self, p):
         """
