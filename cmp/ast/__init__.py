@@ -8,6 +8,7 @@ from .relational import (
     LowerEqualRelationalNode,
     LowerRelationalNode
 )
+from .logic import AndNode, OrNode
 
 __all__ = (
     "AssignmentNode",
@@ -18,5 +19,7 @@ __all__ = (
     "GreaterRelationalNode",
     "GreaterEqualRelationalNode",
     "LowerRelationalNode",
-    "LowerEqualRelationalNode"
+    "LowerEqualRelationalNode",
+    "AndNode",
+    "OrNode"
 )

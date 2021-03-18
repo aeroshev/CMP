@@ -1,26 +1,8 @@
-from typing import Any, Dict, List
-
 from .node import Node
+from .lhs_rhs_node import LhsRhsNode
 
 
-class RelationalNode(Node):
-    """Relational object node"""
-    __slots__ = ("lhs", "rhs")
-
-    def __init__(self, lhs: Node, rhs: Node) -> None:
-        self.lhs = lhs
-        self.rhs = rhs
-
-    def children(self) -> List[Dict[str, Any]]:
-        node_list = []
-        if self.lhs is not None:
-            node_list.append({"lhs": self.lhs})
-        if self.rhs is not None:
-            node_list.append({"rhs": self.rhs})
-        return node_list
-
-
-class GreaterRelationalNode(RelationalNode):
+class GreaterRelationalNode(LhsRhsNode):
     """Greater relational object node"""
     __slots__ = ("lhs", "rhs")
 
@@ -28,7 +10,7 @@ class GreaterRelationalNode(RelationalNode):
         super().__init__(lhs, rhs)
 
 
-class GreaterEqualRelationalNode(RelationalNode):
+class GreaterEqualRelationalNode(LhsRhsNode):
     """Greater or equal relational object node"""
     __slots__ = ("lhs", "rhs")
 
@@ -36,7 +18,7 @@ class GreaterEqualRelationalNode(RelationalNode):
         super().__init__(lhs, rhs)
 
 
-class LowerRelationalNode(RelationalNode):
+class LowerRelationalNode(LhsRhsNode):
     """Lower object node"""
     __slots__ = ("lhs", "rhs")
 
@@ -44,7 +26,7 @@ class LowerRelationalNode(RelationalNode):
         super().__init__(lhs, rhs)
 
 
-class LowerEqualRelationalNode(RelationalNode):
+class LowerEqualRelationalNode(LhsRhsNode):
     """Lower or equal object node"""
     __slots__ = ("lhs", "rhs")
 
