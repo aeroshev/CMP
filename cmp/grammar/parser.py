@@ -298,6 +298,9 @@ class Parser(LogMixin):
 
 
 data = '''
+
+a == a
+
 if (a == 245)
     do_something
 else
