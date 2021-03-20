@@ -10,6 +10,9 @@ from .relational import (
     LowerEqualRelationalNode,
     LowerRelationalNode
 )
+from .multiplicative import MultiplyNode, DivideNode, PowerNode, ArrayMulNode, ArrayDivNode, ArrayRDivNode, ArrayPowerNode
+from .define_global import GlobalNode
+from .define_clear import ClearNode
 
 __all__ = (
     "AssignmentNode",
@@ -25,5 +28,14 @@ __all__ = (
     "OrNode",
     "SimpleConditionalNode",
     "TwoBranchConditionalNode",
-    "EmptyNode"
+    "EmptyNode",
+    "MultiplyNode",
+    "DivideNode",
+    "PowerNode",
+    "ArrayMulNode",
+    "ArrayDivNode",
+    "ArrayRDivNode",
+    "ArrayPowerNode",
+    "GlobalNode",
+    "ClearNode"
 )

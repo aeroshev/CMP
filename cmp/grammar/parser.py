@@ -15,7 +15,10 @@ class Parser(LogMixin):
         "==": PositiveEqualityNode,
         "!=": NegativeEqualityNode,
         "&": AndNode,
-        "|": OrNode
+        "|": OrNode,
+        "*": MultiplyNode,
+        "/": DivideNode,
+        "^": PowerNode
     }
 
     def __init__(
@@ -84,6 +87,7 @@ class Parser(LogMixin):
         index_expression : ':'
                          | expression
         """
+        p[0] = p[1] if p[1] != ':' else EmptyNode()
 
     def p_index_expression_list(self, p: yacc.YaccProduction) -> None:
         """
@@ -122,7 +126,7 @@ class Parser(LogMixin):
                                   | multiplicative_expression ARRAY_RDIV unary_expression
                                   | multiplicative_expression ARRAY_POW unary_expression
         """
-        p[0] = p[1] if len(p) == 2 else ...  # TODO
+        self._lhs_rhs_expression(p)
 
     def p_additive_expression(self, p: yacc.YaccProduction) -> None:
         """
@@ -215,11 +219,13 @@ class Parser(LogMixin):
         """
         global_statement : GLOBAL identifier_list eostmt
         """
+        p[0] = GlobalNode(id_list=p[2])
 
     def p_clear_statement(self, p: yacc.YaccProduction) -> None:
         """
         clear_statement : CLEAR identifier_list eostmt
         """
+        p[0] = ClearNode(id_list=p[2])
 
     def p_expression_statement(self, p: yacc.YaccProduction) -> None:
         """
