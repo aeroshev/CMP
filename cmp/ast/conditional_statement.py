@@ -44,8 +44,8 @@ class TwoBranchConditionalNode(ConditionalNode):
 
     def children(self) -> List[Dict[str, Any]]:
         ...
-
-
-class ManyBranchConditionalNode(ConditionalNode):
-    """"""
-    __slots__ = ("main_statement", "main_branch", "alternative_branch")
+#
+#
+# class ManyBranchConditionalNode(ConditionalNode):
+#     """"""
+#     __slots__ = ("main_statement", "main_branch", "alternative_branch")

@@ -10,10 +10,10 @@ class Parser(LogMixin):
     handlers = {
         "<": LowerRelationalNode,
         ">": GreaterRelationalNode,
-        "LE_OP": LowerEqualRelationalNode,
-        "GE_OP": GreaterEqualRelationalNode,
-        "EQ_OP": PositiveEqualityNode,
-        "NE_OP": NegativeEqualityNode,
+        "<=": LowerEqualRelationalNode,
+        ">=": GreaterEqualRelationalNode,
+        "==": PositiveEqualityNode,
+        "!=": NegativeEqualityNode,
         "&": AndNode,
         "|": OrNode
     }
@@ -39,7 +39,7 @@ class Parser(LogMixin):
 
     def _lhs_rhs_expression(self, p: yacc.YaccProduction) -> None:
         if len(p) == 4:
-            p[0] = self.handlers[p[2].type](lhs=p[1], rhs=p[3])
+            p[0] = self.handlers[p[2]](lhs=p[1], rhs=p[3])
         else:
             p[0] = p[1]
 
@@ -59,14 +59,17 @@ class Parser(LogMixin):
                            | '[' ']'
                            | '[' array_list ']'
         """
+        clear_p = []
         for index, token in enumerate(p):
             if token in {'(', ')', '[', ']'}:
-                p.pop(index)
+                continue
+            else:
+                clear_p.append(token)
 
         if len(p) > 1:
-            p[0] = p[1]
+            p[0] = clear_p[1]
         else:
-            ...
+            ...  # TODO
 
     def p_postfix_expression(self, p: yacc.YaccProduction) -> None:
         """
@@ -74,6 +77,7 @@ class Parser(LogMixin):
                            | array_expression
                            | postfix_expression TRANSPOSE
         """
+        p[0] = p[1] if len(p) == 2 else ...  # TODO
 
     def p_index_expression(self, p: yacc.YaccProduction) -> None:
         """
@@ -86,6 +90,7 @@ class Parser(LogMixin):
         index_expression_list : index_expression
                               | index_expression_list ',' index_expression
         """
+        p[0] = p[1] if len(p) == 2 else p[1] + p[3]
 
     def p_array_expression(self, p: yacc.YaccProduction) -> None:
         """
@@ -97,6 +102,7 @@ class Parser(LogMixin):
         unary_expression : postfix_expression
                          | unary_operator postfix_expression
         """
+        p[0] = p[1] if len(p) == 2 else ...  # TODO
 
     def p_unary_operator(self, p: yacc.YaccProduction) -> None:
         """
@@ -116,6 +122,7 @@ class Parser(LogMixin):
                                   | multiplicative_expression ARRAY_RDIV unary_expression
                                   | multiplicative_expression ARRAY_POW unary_expression
         """
+        p[0] = p[1] if len(p) == 2 else ...  # TODO
 
     def p_additive_expression(self, p: yacc.YaccProduction) -> None:
         """
@@ -123,6 +130,7 @@ class Parser(LogMixin):
                             | additive_expression '+' multiplicative_expression
                             | additive_expression '-' multiplicative_expression
         """
+        p[0] = p[1] if len(p) == 2 else ...  # TODO
 
     def p_relational_expression(self, p: yacc.YaccProduction) -> None:
         """
@@ -161,6 +169,7 @@ class Parser(LogMixin):
         expression : or_expression
                    | expression ':' or_expression
         """
+        p[0] = p[1] if len(p) == 2 else ...  # TODO
 
     def p_assignment_expression(self, p: yacc.YaccProduction) -> None:
         """
@@ -174,6 +183,7 @@ class Parser(LogMixin):
                | ';'
                | NEWLINE
         """
+        p[0] = EmptyNode()
 
     def p_statement(self, p: yacc.YaccProduction) -> None:
         """
@@ -185,18 +195,21 @@ class Parser(LogMixin):
                   | iteration_statement
                   | jump_statement
         """
+        p[0] = p[1]
 
     def p_statement_list(self, p: yacc.YaccProduction) -> None:
         """
         statement_list : statement
                        | statement_list statement
         """
+        p[0] = p[1] if len(p) == 2 else p[1] + p[2]
 
     def p_identifier_list(self, p: yacc.YaccProduction) -> None:
         """
         identifier_list : IDENTIFIER
                         | identifier_list IDENTIFIER
         """
+        p[0] = p[1] if len(p) == 2 else p[1] + p[2]
 
     def p_global_statement(self, p: yacc.YaccProduction) -> None:
         """
@@ -213,17 +226,20 @@ class Parser(LogMixin):
         expression_statement : eostmt
                              | expression eostmt
         """
+        p[0] = EmptyNode() if len(p) == 2 else p[1]
 
     def p_assignment_statement(self, p: yacc.YaccProduction) -> None:
         """
         assignment_statement : assignment_expression eostmt
         """
+        p[0] = p[1]
 
     def p_array_element(self, p: yacc.YaccProduction) -> None:
         """
         array_element : expression
                       | expression_statement
         """
+        p[0] = p[1]
 
     def p_array_list(self, p: yacc.YaccProduction) -> None:
         """
@@ -238,6 +254,14 @@ class Parser(LogMixin):
                             | IF expression statement_list elseif_clause END eostmt
                             | IF expression statement_list elseif_clause ELSE statement_list END eostmt
         """
+        if len(p) == 9:
+            ...
+        elif len(p) == 8:
+            p[0] = TwoBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_branch=p[5])
+        elif len(p) == 7:
+            ...
+        elif len(p) == 6:
+            p[0] = SimpleConditionalNode(main_stmt=p[2], stmt_list=p[3])
 
     def p_elseif_clause(self, p: yacc.YaccProduction) -> None:
         """
@@ -263,6 +287,7 @@ class Parser(LogMixin):
         translation_unit : statement_list
                          | FUNCTION func_declare eostmt statement_list
         """
+        p[0] = p[1] if len(p) == 2 else ...  # TODO
 
     def p_func_identifier_list(self, p: yacc.YaccProduction) -> None:
         """
@@ -298,9 +323,6 @@ class Parser(LogMixin):
 
 
 data = '''
-
-a == a
-
 if (a == 245)
     do_something
 else

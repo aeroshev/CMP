@@ -1,5 +1,5 @@
-from .node import Node
 from .lhs_rhs_node import LhsRhsNode
+from .node import Node
 
 
 class GreaterRelationalNode(LhsRhsNode):
