@@ -33,7 +33,8 @@ class Parser(LogMixin):
             module=self,
             start='translation_unit',
             debug=yacc_debug,
-            outputdir=tab_out_put_dir,
+            outputdir='./cmp_tables/',
+            tabmodule='cmp_parse_tab',
             optimize=1
         )
         self._scope_stack = [dict()]
