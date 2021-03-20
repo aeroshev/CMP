@@ -135,3 +135,6 @@ dmypy.json
 lextab.py
 parsetab.py
 parser.out
+
+# Logs
+parselog.txt
