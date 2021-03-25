@@ -1,4 +1,4 @@
-from .array import ArrayNode
+from .array import ArrayNode, ArrayVectorNode
 from .assigment import AssignmentNode
 from .conditional_statement import SimpleConditionalNode, TwoBranchConditionalNode
 from .define_clear import ClearNode
@@ -51,5 +51,6 @@ __all__ = (
     "ClearNode",
     "ArrayNode",
     "FunctionNode",
-    "SimpleNode"
+    "SimpleNode",
+    "ArrayVectorNode"
 )

@@ -20,7 +20,11 @@ class LhsRhsNode(Node):
         return nodes_list
 
     def __iter__(self) -> Iterator[Node]:
+        yield self
         if self.lhs:
             yield self.lhs
         if self.rhs:
             yield self.rhs
+
+    def __repr__(self) -> str:
+        return f'{self.__class__.__name__}: lhs - {self.lhs}, rhs - {self.rhs}'

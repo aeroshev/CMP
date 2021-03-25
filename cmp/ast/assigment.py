@@ -1,3 +1,5 @@
+from typing import Iterator
+
 from .lhs_rhs_node import LhsRhsNode
 from .node import Node
 

@@ -69,9 +69,12 @@ class Parser(LogMixin):
         if len(p) == 2:
             p[0] = SimpleNode(content=p[1])
         elif len(p) == 3:
-            p[0] = ...  # TODO empty Array?
+            p[0] = ArrayVectorNode(content=[])
         else:
-            ...  # TODO array or expression
+            if p[1] == '[':
+                p[0] = ArrayVectorNode(content=p[2])
+            elif p[1] == '(':
+                p[0] = p[2]
 
     def p_postfix_expression(self, p: YaccProduction) -> None:
         """
@@ -134,7 +137,7 @@ class Parser(LogMixin):
                             | additive_expression '+' multiplicative_expression
                             | additive_expression '-' multiplicative_expression
         """
-        p[0] = p[1] if len(p) == 2 else ...  # TODO
+        self._lhs_rhs_expression(p)
 
     def p_relational_expression(self, p: YaccProduction) -> None:
         """
@@ -206,14 +209,14 @@ class Parser(LogMixin):
         statement_list : statement
                        | statement_list statement
         """
-        p[0] = p[1] if len(p) == 2 else p[1] + p[2]
+        p[0] = p[1] if len(p) == 2 else p[1] + p[2]  # TODO
 
     def p_identifier_list(self, p: YaccProduction) -> None:
         """
         identifier_list : IDENTIFIER
                         | identifier_list IDENTIFIER
         """
-        p[0] = p[1] if len(p) == 2 else p[1] + p[2]
+        p[0] = p[1] if len(p) == 2 else [*p[1], [2]]
 
     def p_global_statement(self, p: YaccProduction) -> None:
         """
@@ -252,6 +255,7 @@ class Parser(LogMixin):
         array_list : array_element
                    | array_list array_element
         """
+        p[0] = p[1] if len(p) == 2 else [*p[1], p[2]]
 
     def p_selection_statement(self, p: YaccProduction) -> None:
         """
