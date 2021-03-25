@@ -1,4 +1,6 @@
-from ply.yacc import yacc, YaccProduction
+from typing import Any, List
+
+from ply.yacc import YaccProduction, yacc
 
 from cmp.ast import *
 from cmp.grammar import Lexer
@@ -38,7 +40,7 @@ class Parser(LogMixin):
             optimize=True,
             errorlog=self.logger
         )
-        self._scope_stack = [dict()]
+        self._scope_stack = [dict()]  # type: List[dict]
         self._last_yielded_token = None
         self._err_flag = False
 
@@ -48,7 +50,7 @@ class Parser(LogMixin):
         else:
             p[0] = p[1]
 
-    def parse(self, text, filename='', debug_level=True) -> Node:
+    def parse(self, text, filename='', debug_level=True) -> Any:
         return self._parser.parsedebug(
             input=text,
             lexer=self._lex,
@@ -72,7 +74,7 @@ class Parser(LogMixin):
                 clear_p.append(token)
 
         if len(p) > 1:
-            p[0] = clear_p[1]
+            p[0] = clear_p[1]  # TODO create object
         else:
             ...  # TODO
 
@@ -102,6 +104,7 @@ class Parser(LogMixin):
         """
         array_expression : IDENTIFIER '(' index_expression_list ')'
         """
+        p[0] = ArrayNode(ident=p[1], content=p[3])
 
     def p_unary_expression(self, p: YaccProduction) -> None:
         """
@@ -332,7 +335,7 @@ class Parser(LogMixin):
 
 data = '''
 if (a == 245)
-    do_something
+    b = [2, 3, 5]
 else
     to_do
 end
@@ -346,3 +349,5 @@ end
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
     ast = parser.parse(text=data, debug_level=False)
+    for node in ast:
+        print(node)

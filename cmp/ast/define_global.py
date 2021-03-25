@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterator, List
 
 from .node import Node
 
@@ -12,3 +12,7 @@ class GlobalNode(Node):
 
     def children(self) -> List[Dict[str, Any]]:
         ...
+
+    def __iter__(self) -> Iterator[Node]:
+        for _id in self.id_list:
+            yield _id

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterator, List
 
 from .node import Node
 
@@ -18,3 +18,9 @@ class LhsRhsNode(Node):
         if self.rhs is not None:
             nodes_list.append({"rhs": self.rhs})
         return nodes_list
+
+    def __iter__(self) -> Iterator[Node]:
+        if self.lhs:
+            yield self.lhs
+        if self.rhs:
+            yield self.rhs
