@@ -66,17 +66,12 @@ class Parser(LogMixin):
                            | '[' ']'
                            | '[' array_list ']'
         """
-        clear_p = []
-        for index, token in enumerate(p):
-            if token in {'(', ')', '[', ']'}:
-                continue
-            else:
-                clear_p.append(token)
-
-        if len(p) > 1:
-            p[0] = clear_p[1]  # TODO create object
+        if len(p) == 2:
+            p[0] = SimpleNode(content=p[1])
+        elif len(p) == 3:
+            p[0] = ...  # TODO empty Array?
         else:
-            ...  # TODO
+            ...  # TODO array or expression
 
     def p_postfix_expression(self, p: YaccProduction) -> None:
         """
@@ -298,7 +293,7 @@ class Parser(LogMixin):
         translation_unit : statement_list
                          | FUNCTION func_declare eostmt statement_list
         """
-        p[0] = p[1] if len(p) == 2 else ...  # TODO
+        p[0] = p[1] if len(p) == 2 else FunctionNode(declare=p[2], body=p[4])
 
     def p_func_identifier_list(self, p: YaccProduction) -> None:
         """

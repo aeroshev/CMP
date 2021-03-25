@@ -4,6 +4,8 @@ from .conditional_statement import SimpleConditionalNode, TwoBranchConditionalNo
 from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
+from .finite_unit import SimpleNode
+from .function import FunctionNode
 from .identifier import IdentifierNode
 from .logic import AndNode, OrNode
 from .multiplicative import (
@@ -47,5 +49,7 @@ __all__ = (
     "ArrayPowerNode",
     "GlobalNode",
     "ClearNode",
-    "ArrayNode"
+    "ArrayNode",
+    "FunctionNode",
+    "SimpleNode"
 )
