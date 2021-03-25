@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, Iterator, List
 
 from .node import Node
 
@@ -10,6 +10,9 @@ class BreakNode(Node):
     def children(self) -> List[Dict[str, Any]]:
         ...
 
+    def __iter__(self) -> Iterator[None]:
+        yield
+
 
 class ReturnNode(Node):
     """"""
@@ -17,3 +20,6 @@ class ReturnNode(Node):
 
     def children(self) -> List[Dict[str, Any]]:
         ...
+
+    def __iter__(self) -> Iterator[None]:
+        yield

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, Iterator, List, Union
 
 
 class EmptyNode:
@@ -16,6 +16,10 @@ class Node(ABC):
 
     @abstractmethod
     def children(self) -> List[Dict[str, Any]]:
+        ...
+
+    @abstractmethod
+    def __iter__(self) -> Iterator:
         ...
 
     def __repr__(self) -> str:

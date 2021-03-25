@@ -99,13 +99,12 @@ class Lexer(LogMixin):
     # t_MINUS_EQ = r"\-="
     # t_MINUS_MINUS = r"\-\-"
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self) -> None:
         self._lexer = lex(
             module=self,
-            optimize=1,
+            optimize=True,
             outputdir='./cmp_tables/',
-            lextab='cmp_lex_tab',
-            **kwargs
+            lextab='cmp_lex_tab'
         )
 
     def t_error(self, token_: LexToken) -> None:
