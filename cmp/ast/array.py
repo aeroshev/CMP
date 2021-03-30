@@ -1,4 +1,5 @@
 from typing import Any, Dict, Iterator, List
+from itertools import chain
 
 from .node import Node
 
@@ -32,5 +33,5 @@ class ArrayVectorNode(Node):
 
     def __iter__(self) -> Iterator[Node]:
         yield self
-        for index in self.content:
+        for index in chain(self.content):
             yield index

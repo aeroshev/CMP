@@ -344,9 +344,12 @@ end
 % Just a comment
 '''
 
+data2 = '''b = [2 * 2, 3, 5]
+'''
+
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data, debug_level=False)
+    ast = parser.parse(text=data2, debug_level=False)
     for node in ast:
         print(node)
