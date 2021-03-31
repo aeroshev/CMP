@@ -1,5 +1,6 @@
 from abc import abstractmethod
 from typing import Any, Dict, Iterator, List
+from itertools import chain
 
 from .node import Node
 
@@ -51,10 +52,8 @@ class TwoBranchConditionalNode(ConditionalNode):
         ...
 
     def __iter__(self) -> Iterator[Node]:
-        yield self.main_stmt
-        for stmt in self.main_branch:
-            yield stmt
-        for stmt in self.alt_branch:
+        yield self
+        for stmt in chain(self.main_stmt, self.main_branch, self.alt_branch):
             yield stmt
 
 #

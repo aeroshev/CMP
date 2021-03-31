@@ -1,9 +1,11 @@
-from .array import ArrayNode
+from .array import ArrayNode, ArrayVectorNode
 from .assigment import AssignmentNode
 from .conditional_statement import SimpleConditionalNode, TwoBranchConditionalNode
 from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
+from .finite_unit import SimpleNode
+from .function import FunctionNode
 from .identifier import IdentifierNode
 from .logic import AndNode, OrNode
 from .multiplicative import (
@@ -22,6 +24,7 @@ from .relational import (
     LowerEqualRelationalNode,
     LowerRelationalNode
 )
+from .root import FileAST
 
 __all__ = (
     "AssignmentNode",
@@ -47,5 +50,9 @@ __all__ = (
     "ArrayPowerNode",
     "GlobalNode",
     "ClearNode",
-    "ArrayNode"
+    "ArrayNode",
+    "FunctionNode",
+    "SimpleNode",
+    "ArrayVectorNode",
+    "FileAST"
 )
