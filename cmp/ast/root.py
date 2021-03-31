@@ -2,6 +2,7 @@ from typing import Iterator, List, Any
 
 from .node import Node
 
+
 class FileAST(Node):
     """"""
     __slots__ = "root"
@@ -10,7 +11,8 @@ class FileAST(Node):
         self.root = root
 
     def __iter__(self) -> Iterator[Node]:
-        yield self.root
+        for stmt in self.root:
+            yield stmt
 
     def children(self) -> List[Any]:
         nodes_list = []

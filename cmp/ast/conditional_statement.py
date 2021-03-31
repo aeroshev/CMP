@@ -52,7 +52,6 @@ class TwoBranchConditionalNode(ConditionalNode):
         ...
 
     def __iter__(self) -> Iterator[Node]:
-        yield self
         for stmt in chain(self.main_stmt, self.main_branch, self.alt_branch):
             yield stmt
 

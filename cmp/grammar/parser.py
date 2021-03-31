@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Union, Optional
 from itertools import chain
 
 from ply.yacc import YaccProduction, yacc
@@ -52,6 +52,20 @@ class Parser(LogMixin):
             p[0] = self.handlers[p[2]](lhs=p[1], rhs=p[3])
         else:
             p[0] = p[1]
+
+    def _save_merge(
+            self,
+            left: Union[List[Node], Node],
+            right: Node
+    ) -> List[Optional[Node]]:
+        res = []
+        if isinstance(left, EmptyNode):
+            res += [right]
+        elif isinstance(right, EmptyNode):
+            res += left
+        else:
+            res = [*left, right]
+        return res
 
     def parse(self, text, filename='', debug_level=True) -> Any:
         return self._parser.parsedebug(
@@ -212,14 +226,14 @@ class Parser(LogMixin):
         statement_list : statement
                        | statement_list statement
         """
-        p[0] = p[1] if len(p) == 2 else [*p[1], p[2]]  # TODO
+        p[0] = p[1] if len(p) == 2 else self._save_merge(left=p[1], right=p[2])
 
     def p_identifier_list(self, p: YaccProduction) -> None:
         """
         identifier_list : IDENTIFIER
                         | identifier_list IDENTIFIER
         """
-        p[0] = p[1] if len(p) == 2 else [*p[1], [2]]
+        p[0] = p[1] if len(p) == 2 else self._save_merge(left=p[1], right=p[2])
 
     def p_global_statement(self, p: YaccProduction) -> None:
         """
@@ -258,7 +272,7 @@ class Parser(LogMixin):
         array_list : array_element
                    | array_list array_element
         """
-        p[0] = p[1] if len(p) == 2 else [*p[1], p[2]]
+        p[0] = p[1] if len(p) == 2 else self._save_merge(left=p[1], right=p[2])
 
     def p_selection_statement(self, p: YaccProduction) -> None:
         """
@@ -310,7 +324,7 @@ class Parser(LogMixin):
         if len(p) == 2:
             p[0] = [p[1]]
         else:
-            p[0] = [*p[1], p[3]]
+            p[0] = self._save_merge(left=p[1], right=p[3])
 
     def p_func_return_list(self, p: YaccProduction) -> None:
         """
@@ -335,7 +349,7 @@ class Parser(LogMixin):
         print(f"Syntax error in input! {p}")
 
 
-data = '''
+data1 = '''
 if (a == 245)
     b = [2, 3, 5]
 else
@@ -354,11 +368,16 @@ data2 = '''b = [2 * 2, 3, 5]
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
     ast = parser.parse(text=data2, debug_level=False)
-    chain_ = ast.children()
-    for node in chain_:
-        print(node)
-    print()
-    v = Visitor('output.py')
+    # chain_ = ast.children()
+    # for node in chain_:
+    #     print(node)
+    # print()
     for node in ast:
-        v.visit(node)
+        print(node)
+
+    v = Visitor('output.py')
+    res_str = ''
+    for node in ast:
+        res_str += v.visit(node)
+    v._output.write(res_str)
 

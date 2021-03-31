@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, List
 
 from cmp.ast import *
-from cmp.helpers import camel_to_snake
+from cmp.helpers import camel_to_snake, defer_string
 
 
 class Visitor:
@@ -16,23 +16,32 @@ class Visitor:
         method = 'visit_' + camel_to_snake(node.__class__.__name__)
         return getattr(self, method)(node)
 
+    def visit_list(self, list_nodes: List[Node]) -> List[Any]:
+        res = []
+        for node in list_nodes:
+            res.append(self.visit(node))
+        return res
+
     def visit_two_branch_conditional_node(
             self,
             node: TwoBranchConditionalNode
     ) -> None:
-        output_str = (
-            f'if {node.main_stmt}:\n'
-            f'\t{node.main_branch}\n'
-            f'else:\n'
-            f'\t{node.alt_branch}'
+        output_str = defer_string(
+            'if {main_stmt}:\n'
+            '\t{main_branch}\n'
+            'else:\n'
+            '\t{alt_branch}'
         )
-        self._output.write(output_str)
+        main_stmt = self.visit(node.main_stmt)
+        main_branch = '\n'.join(self.visit_list(node.main_branch))
+        alt_branch = '\n'.join(self.visit_list(node.alt_branch))
+        return str(output_str)
 
     def visit_assignment_node(self, node: AssignmentNode) -> None:
         lhs = self.visit(node.lhs)
         rhs = self.visit(node.rhs)
         print(f'lhs {lhs}, rhs {rhs}')
-        self._output.write(f'{lhs} = {rhs}')
+        return f'{lhs} = {rhs}'
 
     def visit_simple_node(self, node: SimpleNode) -> str:
         print(node.content)
@@ -48,3 +57,8 @@ class Visitor:
         lhs = self.visit(node.lhs)
         rhs = self.visit(node.rhs)
         return f'{lhs} * {rhs}'
+
+    def visit_positive_equality_node(self, node: PositiveEqualityNode) -> str:
+        lhs = self.visit(node.lhs)
+        rhs = self.visit(node.rhs)
+        return f'{lhs} == {rhs}'

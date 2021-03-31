@@ -10,6 +10,9 @@ class EmptyNode:
     def __add__(self, other: Any) -> Any:
         return other
 
+    def __iter__(self):
+        yield self
+
 
 class Node(ABC):
     """Base node for AST"""
