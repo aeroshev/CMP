@@ -2,7 +2,7 @@ import inspect
 
 
 class defer_string:
-    """"""
+    """Defer printing string with placeholders"""
     def __init__(self, payload: str) -> None:
         self.payload = payload
 

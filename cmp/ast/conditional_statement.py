@@ -1,6 +1,6 @@
 from abc import abstractmethod
-from typing import Any, Dict, Iterator, List
 from itertools import chain
+from typing import Any, Dict, Iterator, List
 
 from .node import Node
 
@@ -18,7 +18,11 @@ class ConditionalNode(Node):
 
 
 class SimpleConditionalNode(ConditionalNode):
-    """"""
+    """
+    Conditional node for one way statement
+    >>> if (expression is True)
+    >>>         do_something
+    """
     __slots__ = ("main_statement", "statements_list")
 
     def __init__(self, main_stmt: Node, stmt_list: List[Node]) -> None:
@@ -35,7 +39,13 @@ class SimpleConditionalNode(ConditionalNode):
 
 
 class TwoBranchConditionalNode(ConditionalNode):
-    """"""
+    """
+    Conditional node for two way statement
+    >>> if (expression is True)
+    >>>         do_something
+    >>> else
+    >>>         to_do
+    """
     __slots__ = ("main_stmt", "main_branch", "alt_branch")
 
     def __init__(

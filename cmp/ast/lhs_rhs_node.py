@@ -1,6 +1,4 @@
-from typing import Any, Dict, Iterator, List
-from itertools import chain
-
+from typing import Any, Iterator, List
 
 from .node import Node
 
@@ -24,10 +22,6 @@ class LhsRhsNode(Node):
 
     def __iter__(self) -> Iterator[Node]:
         yield self
-        # if self.lhs:
-        #     yield self.lhs
-        # if self.rhs:
-        #     yield self.rhs
 
     def __str__(self) -> str:
         return f'{self.__class__.__name__}: lhs({self.lhs}) rhs({self.rhs})'

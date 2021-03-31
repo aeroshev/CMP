@@ -4,6 +4,11 @@ from cmp.helpers import LogMixin
 
 
 class Lexer(LogMixin):
+    """
+    Executive lexer object.
+    Containing primary tokens.
+    This class give next token
+    """
     # Keywords MATLAB
     keywords = {
         # Loops keywords
