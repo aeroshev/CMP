@@ -9,7 +9,11 @@ from cmp.traverse.traverse_ast import Visitor
 
 
 class Parser(LogMixin):
-    """Executive parser object"""
+    """
+    Executive parser object.
+    Containing primary reduce rules.
+    This class build AST
+    """
     handlers = {
         "<": LowerRelationalNode,
         ">": GreaterRelationalNode,

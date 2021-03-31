@@ -5,7 +5,10 @@ from cmp.helpers import camel_to_snake
 
 
 class Visitor:
-    """"""
+    """
+    Walk through the generated AST and
+    translating it to Python code in the specified file
+    """
     def __init__(self, filename: str) -> None:
         self._output = open(filename, "w", encoding="utf-8")
 

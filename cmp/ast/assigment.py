@@ -3,7 +3,7 @@ from .node import Node
 
 
 class AssignmentNode(LhsRhsNode):
-    """Assigment object node"""
+    """Assignment object node: Lhs Rhs object"""
     __slots__ = ("lhs", "rhs")
 
     def __init__(self, lhs: Node, rhs: Node) -> None:
