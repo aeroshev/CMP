@@ -367,7 +367,7 @@ data2 = '''b = [2 * 2, 3, 5]
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data2, debug_level=False)
+    ast = parser.parse(text=data1, debug_level=False)
     # chain_ = ast.children()
     # for node in chain_:
     #     print(node)
@@ -376,8 +376,5 @@ if __name__ == '__main__':
         print(node)
 
     v = Visitor('output.py')
-    res_str = ''
-    for node in ast:
-        res_str += v.visit(node)
-    v._output.write(res_str)
+    v.traverse_ast(ast)
 
