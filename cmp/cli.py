@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 
 from cmp.grammar import Parser
 from cmp.helpers import LogMixin, Singleton
+from cmp.traverse import Visitor
 
 
 class Command(ArgumentParser, LogMixin, Singleton):
@@ -19,6 +20,13 @@ class Command(ArgumentParser, LogMixin, Singleton):
             type=str,
             help='path to file'
         )
+        self.add_argument(
+            '-of',
+            '--output-file',
+            required=False,
+            type=str,
+            help='path to output file'
+        )
 
     def execute(self) -> None:
         args = self.parse_args()
@@ -29,7 +37,10 @@ class Command(ArgumentParser, LogMixin, Singleton):
 
         parser = self._get_parser()
 
-        parser.parse(text=self._get_text_file(args.path))
+        ast = parser.parse(text=self._get_text_file(args.path), debug_level=False)
+        visitor = self._get_visitor(filename=args.output_file)
+
+        visitor.traverse_ast(ast)
 
     @staticmethod
     def _validate_file(path: str) -> bool:
@@ -38,6 +49,10 @@ class Command(ArgumentParser, LogMixin, Singleton):
     @staticmethod
     def _get_parser() -> Parser:
         return Parser(yacc_debug=False)
+
+    @staticmethod
+    def _get_visitor(filename: str) -> Visitor:
+        return Visitor(filename=filename)
 
     @staticmethod
     def _get_text_file(path: str) -> str:
