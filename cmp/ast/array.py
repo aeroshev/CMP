@@ -1,5 +1,4 @@
 from typing import Any, Dict, Iterator, List
-from itertools import chain
 
 from .node import Node
 

@@ -1,4 +1,4 @@
-from typing import Iterator, List, Any
+from typing import Any, Iterator, List
 
 from .node import Node
 

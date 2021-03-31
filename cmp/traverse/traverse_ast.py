@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from cmp.ast import *
-from cmp.helpers import camel_to_snake, defer_string
+from cmp.helpers import camel_to_snake
 
 
 class Visitor:
@@ -18,7 +18,7 @@ class Visitor:
             res_str += self._visit(node)
         self._output.write(res_str)
 
-    def _visit(self, node: Node) -> str:
+    def _visit(self, node: Node) -> Any:
         method = '_visit_' + camel_to_snake(node.__class__.__name__)
         return getattr(self, method)(node)
 
@@ -32,15 +32,15 @@ class Visitor:
             self,
             node: TwoBranchConditionalNode
     ) -> str:
-        output_str = defer_string(
-            'if {main_stmt}:\n'
-            '\t{main_branch}\n'
-            'else:\n'
-            '\t{alt_branch}'
-        )
         main_stmt = self._visit(node.main_stmt)
         main_branch = '\n'.join(self._visit_list(node.main_branch))
         alt_branch = '\n'.join(self._visit_list(node.alt_branch))
+        output_str = (
+            f'if {main_stmt}:\n'
+            f'\t{main_branch}\n'
+            f'else:\n'
+            f'\t{alt_branch}'
+        )
         return str(output_str)
 
     def _visit_assignment_node(self, node: AssignmentNode) -> str:

@@ -1,6 +1,6 @@
 from abc import abstractmethod
-from typing import Any, Dict, Iterator, List
 from itertools import chain
+from typing import Any, Dict, Iterator, List
 
 from .node import Node
 
