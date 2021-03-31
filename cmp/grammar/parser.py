@@ -1,10 +1,13 @@
 from typing import Any, List
+from itertools import chain
 
 from ply.yacc import YaccProduction, yacc
 
 from cmp.ast import *
 from cmp.grammar import Lexer
 from cmp.helpers import LogMixin
+
+from cmp.traverse.traverse_ast import Visitor
 
 
 class Parser(LogMixin):
@@ -209,7 +212,7 @@ class Parser(LogMixin):
         statement_list : statement
                        | statement_list statement
         """
-        p[0] = p[1] if len(p) == 2 else p[1] + p[2]  # TODO
+        p[0] = p[1] if len(p) == 2 else [*p[1], p[2]]  # TODO
 
     def p_identifier_list(self, p: YaccProduction) -> None:
         """
@@ -297,7 +300,7 @@ class Parser(LogMixin):
         translation_unit : statement_list
                          | FUNCTION func_declare eostmt statement_list
         """
-        p[0] = p[1] if len(p) == 2 else FunctionNode(declare=p[2], body=p[4])
+        p[0] = FileAST(root=p[1]) if len(p) == 2 else ... #  FunctionNode(declare=p[2], body=p[4]) TODO
 
     def p_func_identifier_list(self, p: YaccProduction) -> None:
         """
@@ -351,5 +354,11 @@ data2 = '''b = [2 * 2, 3, 5]
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
     ast = parser.parse(text=data2, debug_level=False)
-    for node in ast:
+    chain_ = ast.children()
+    for node in chain_:
         print(node)
+    print()
+    v = Visitor('output.py')
+    for node in ast:
+        v.visit(node)
+

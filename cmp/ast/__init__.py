@@ -24,6 +24,7 @@ from .relational import (
     LowerEqualRelationalNode,
     LowerRelationalNode
 )
+from .root import FileAST
 
 __all__ = (
     "AssignmentNode",
@@ -52,5 +53,6 @@ __all__ = (
     "ArrayNode",
     "FunctionNode",
     "SimpleNode",
-    "ArrayVectorNode"
+    "ArrayVectorNode",
+    "FileAST"
 )

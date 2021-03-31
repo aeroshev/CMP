@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List, Union
+from collections.abc import Mapping
+from typing import Any, Dict, List, Union
 
 
 class EmptyNode:
@@ -15,14 +16,17 @@ class Node(ABC):
     __slots__ = ()
 
     @abstractmethod
-    def children(self) -> List[Dict[str, Any]]:
+    def children(self) -> List[Any]:
         ...
 
     @abstractmethod
-    def __iter__(self) -> Iterator:
+    def __iter__(self):
         ...
 
-    def __repr__(self) -> str:
+    def __len__(self) -> int:
+        return len(self.__slots__)
+
+    def __str__(self) -> str:
         return self.__class__.__name__
 
     def __add__(self, other: 'Node') -> Union['Node', List['Node']]:  # TODO rebuild to radd

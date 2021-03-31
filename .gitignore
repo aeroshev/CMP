@@ -138,3 +138,6 @@ parser.out
 
 # Logs
 parselog.txt
+
+# Output file
+output.py

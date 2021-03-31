@@ -10,11 +10,11 @@ class SimpleNode(Node):
     def __init__(self, content: str) -> None:
         self.content = content
 
-    def children(self) -> List[Dict[str, Any]]:
-        ...
+    def children(self) -> List[Any]:
+        return []
 
     def __iter__(self) -> Iterator[str]:
         yield self
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__ }: {self.content}'
+        return f'{self.__class__.__name__ } ({self.content})'
