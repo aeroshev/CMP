@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Optional
 
 from cmp.ast import *
 from cmp.helpers import camel_to_snake
@@ -9,17 +9,25 @@ class Visitor:
     Walk through the generated AST and
     translating it to Python code in the specified file
     """
-    def __init__(self, filename: str) -> None:
+    def __init__(self, filename: str = 'output.py') -> None:
         self._output = open(filename, "w", encoding="utf-8")
 
     def __del__(self) -> None:
         self._output.close()
 
-    def traverse_ast(self, root: FileAST) -> None:
+    @property
+    def python_tabulate(self) -> str:
+        return ' ' * 4
+
+    def traverse_ast(self, root: FileAST, use_file: bool = False) -> Optional[str]:
         res_str = ''
         for node in root:
             res_str += self._visit(node)
-        self._output.write(res_str)
+        if use_file:
+            self._output.write(res_str)
+            return None
+        else:
+            return res_str
 
     def _visit(self, node: Node) -> Any:
         method = '_visit_' + camel_to_snake(node.__class__.__name__)
@@ -40,9 +48,9 @@ class Visitor:
         alt_branch = '\n'.join(self._visit_list(node.alt_branch))
         output_str = (
             f'if {main_stmt}:\n'
-            f'\t{main_branch}\n'
+            f'{self.python_tabulate}{main_branch}\n'
             f'else:\n'
-            f'\t{alt_branch}'
+            f'{self.python_tabulate}{alt_branch}'
         )
         return str(output_str)
 

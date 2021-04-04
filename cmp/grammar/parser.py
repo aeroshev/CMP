@@ -4,6 +4,7 @@ from ply.yacc import YaccProduction, yacc
 
 from cmp.ast import *
 from cmp.grammar import Lexer
+from cmp.grammar.cmp_tables import abs_module_path
 from cmp.helpers import LogMixin
 from cmp.traverse.traverse_ast import Visitor
 
@@ -40,7 +41,7 @@ class Parser(LogMixin):
             module=self,
             start='translation_unit',
             debug=yacc_debug,
-            outputdir='./cmp_tables/',
+            outputdir=abs_module_path,
             tabmodule='cmp_parse_tab',
             optimize=True,
             errorlog=self.logger
@@ -376,5 +377,5 @@ data2 = '''b = [2 * 2, 3, 5]
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
     ast = parser.parse(text=data1, debug_level=False)
-    v = Visitor('output.py')
+    v = Visitor()
     v.traverse_ast(ast)

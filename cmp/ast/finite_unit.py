@@ -13,7 +13,7 @@ class SimpleNode(Node):
     def children(self) -> List[Any]:
         return []
 
-    def __iter__(self) -> Iterator[str]:
+    def __iter__(self) -> Iterator[Node]:
         yield self
 
     def __repr__(self) -> str:

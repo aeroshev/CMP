@@ -1,8 +1,11 @@
 import os
 from argparse import ArgumentParser
 
+from pkg_resources import require as pkg_require
+
 from cmp.grammar import Parser
 from cmp.helpers import LogMixin, Singleton
+from cmp.traverse import Visitor
 
 
 class Command(ArgumentParser, LogMixin, Singleton):
@@ -19,6 +22,19 @@ class Command(ArgumentParser, LogMixin, Singleton):
             type=str,
             help='path to file'
         )
+        self.add_argument(
+            '-of',
+            '--output-file',
+            required=False,
+            type=str,
+            help='path to output file'
+        )
+        self.add_argument(
+            '-v',
+            '--version',
+            action='version',
+            version=f'Pycmp {pkg_require("pycmp")[0].version}'
+        )
 
     def execute(self) -> None:
         args = self.parse_args()
@@ -29,7 +45,17 @@ class Command(ArgumentParser, LogMixin, Singleton):
 
         parser = self._get_parser()
 
-        parser.parse(text=self._get_text_file(args.path))
+        ast = parser.parse(text=self._get_text_file(args.path), debug_level=False)
+
+        if args.output_file:
+            if not self._validate_file(args.output_file):
+                self.logger.error("Incorrect path to file")
+                return None
+            visitor = self._get_visitor(filename=args.output_file)
+        else:
+            visitor = self._get_visitor(filename='')
+
+        visitor.traverse_ast(root=ast, use_file=True)
 
     @staticmethod
     def _validate_file(path: str) -> bool:
@@ -38,6 +64,13 @@ class Command(ArgumentParser, LogMixin, Singleton):
     @staticmethod
     def _get_parser() -> Parser:
         return Parser(yacc_debug=False)
+
+    @staticmethod
+    def _get_visitor(filename: str) -> Visitor:
+        if filename:
+            return Visitor(filename=filename)
+        else:
+            return Visitor()
 
     @staticmethod
     def _get_text_file(path: str) -> str:
