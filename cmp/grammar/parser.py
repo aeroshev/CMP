@@ -376,5 +376,5 @@ data2 = '''b = [2 * 2, 3, 5]
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
     ast = parser.parse(text=data1, debug_level=False)
-    v = Visitor('output.py')
+    v = Visitor()
     v.traverse_ast(ast)
