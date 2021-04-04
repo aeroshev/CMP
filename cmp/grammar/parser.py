@@ -7,6 +7,8 @@ from cmp.grammar import Lexer
 from cmp.helpers import LogMixin
 from cmp.traverse.traverse_ast import Visitor
 
+from cmp.grammar.cmp_tables import abs_module_path
+
 
 class Parser(LogMixin):
     """
@@ -40,7 +42,7 @@ class Parser(LogMixin):
             module=self,
             start='translation_unit',
             debug=yacc_debug,
-            outputdir='./cmp_tables/',
+            outputdir=abs_module_path,
             tabmodule='cmp_parse_tab',
             optimize=True,
             errorlog=self.logger

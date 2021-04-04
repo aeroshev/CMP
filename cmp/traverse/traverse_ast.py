@@ -9,7 +9,7 @@ class Visitor:
     Walk through the generated AST and
     translating it to Python code in the specified file
     """
-    def __init__(self, filename: str = '/Users/artem/MyProjects/CMP/tests/output.py') -> None:
+    def __init__(self, filename: str = 'output.py') -> None:
         self._output = open(filename, "w", encoding="utf-8")
 
     def __del__(self) -> None:

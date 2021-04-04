@@ -1,5 +1,6 @@
 import os
 from argparse import ArgumentParser
+from pkg_resources import require as pkg_require
 
 from cmp.grammar import Parser
 from cmp.helpers import LogMixin, Singleton
@@ -27,6 +28,12 @@ class Command(ArgumentParser, LogMixin, Singleton):
             type=str,
             help='path to output file'
         )
+        self.add_argument(
+            '-v',
+            '--version',
+            action='version',
+            version=f'Pycmp {pkg_require("pycmp")[0].version}'
+        )
 
     def execute(self) -> None:
         args = self.parse_args()
@@ -38,9 +45,16 @@ class Command(ArgumentParser, LogMixin, Singleton):
         parser = self._get_parser()
 
         ast = parser.parse(text=self._get_text_file(args.path), debug_level=False)
-        visitor = self._get_visitor(filename=args.output_file)
 
-        visitor.traverse_ast(ast)
+        if args.output_file:
+            if not self._validate_file(args.output_file):
+                self.logger.error("Incorrect path to file")
+                return None
+            visitor = self._get_visitor(filename=args.output_file)
+        else:
+            visitor = self._get_visitor(filename='')
+
+        visitor.traverse_ast(root=ast, use_file=True)
 
     @staticmethod
     def _validate_file(path: str) -> bool:
@@ -52,7 +66,10 @@ class Command(ArgumentParser, LogMixin, Singleton):
 
     @staticmethod
     def _get_visitor(filename: str) -> Visitor:
-        return Visitor(filename=filename)
+        if filename:
+            return Visitor(filename=filename)
+        else:
+            return Visitor()
 
     @staticmethod
     def _get_text_file(path: str) -> str:

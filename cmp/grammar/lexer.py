@@ -1,6 +1,7 @@
 from ply.lex import TOKEN, LexToken, lex
 
 from cmp.helpers import LogMixin
+from cmp.grammar.cmp_tables import abs_module_path
 
 
 class Lexer(LogMixin):
@@ -108,7 +109,7 @@ class Lexer(LogMixin):
         self._lexer = lex(
             module=self,
             optimize=True,
-            outputdir='./cmp_tables/',
+            outputdir=abs_module_path,
             lextab='cmp_lex_tab'
         )
 
