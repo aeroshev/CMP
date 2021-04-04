@@ -18,3 +18,19 @@ class FunctionNode(Node):
         yield self.declare
         for stmt in self.body:
             yield stmt
+
+
+class FunctionDeclare(Node):
+    """"""
+
+    __slots__ = ("return_list", "name")
+
+    def __init__(self, return_list: Node, name: Node) -> None:
+        self.return_list = return_list
+        self.name = name
+
+    def children(self) -> List[Any]:
+        ...
+
+    def __iter__(self):
+        ...

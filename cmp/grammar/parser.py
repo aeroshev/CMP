@@ -315,14 +315,14 @@ class Parser(LogMixin):
     def p_translation_unit(self, p: YaccProduction) -> None:
         """
         translation_unit : statement_list
-                         | FUNCTION func_declare eostmt statement_list
+                         | func_unit statement_list
         """
         if len(p) == 2:
             p[0] = FileAST(root=p[1])
         else:
             p[0] = self._save_merge(
-                left=FunctionNode(declare=p[2], body=[]),  # TODO
-                right=p[4]
+                left=p[1],
+                right=p[2]
             )
 
     def p_func_identifier_list(self, p: YaccProduction) -> None:
@@ -353,6 +353,12 @@ class Parser(LogMixin):
         func_declare : func_declare_lhs
                      | func_return_list '=' func_declare_lhs
         """
+
+    def p_func_unit(self, p: YaccProduction) -> None:
+        """
+        func_unit : FUNCTION func_declare eostmt statement_list END
+        """
+        p[0] = FunctionNode(declare=p[1], body=p[4])
 
     def p_error(self, p: YaccProduction) -> None:
         print(f"Syntax error in input! {p}")
