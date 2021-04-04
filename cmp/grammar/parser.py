@@ -4,10 +4,9 @@ from ply.yacc import YaccProduction, yacc
 
 from cmp.ast import *
 from cmp.grammar import Lexer
+from cmp.grammar.cmp_tables import abs_module_path
 from cmp.helpers import LogMixin
 from cmp.traverse.traverse_ast import Visitor
-
-from cmp.grammar.cmp_tables import abs_module_path
 
 
 class Parser(LogMixin):

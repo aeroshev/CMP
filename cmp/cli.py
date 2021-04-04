@@ -1,5 +1,6 @@
 import os
 from argparse import ArgumentParser
+
 from pkg_resources import require as pkg_require
 
 from cmp.grammar import Parser

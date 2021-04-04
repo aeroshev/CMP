@@ -4,10 +4,9 @@ from typing import Iterator, Tuple
 import pytest
 from _pytest.fixtures import SubRequest
 
-from cmp.traverse import Visitor
-from cmp.ast import Node
+from cmp.ast import FileAST
 from cmp.grammar import Parser
-
+from cmp.traverse import Visitor
 
 MATLAB_SAMPLES = './matlab_samples/'
 PYTHON_OUTPUT = './python_output/'
@@ -26,14 +25,14 @@ def sample(request: SubRequest) -> Iterator[Tuple[str, str]]:
 
 
 @pytest.fixture
-def ast(sample: Tuple[str, str]) -> Node:
+def ast(sample: Tuple[str, str]) -> FileAST:
     matlab_input, _ = sample
     parser = Parser(yacc_debug=False)
     ast = parser.parse(text=matlab_input, debug_level=False)
     return ast
 
 
-def test_traverse(sample: Tuple[str, str], ast: Node) -> None:
+def test_traverse(sample: Tuple[str, str], ast: FileAST) -> None:
     _, python_output = sample
     visitor = Visitor()
     res_string = visitor.traverse_ast(root=ast, use_file=False)

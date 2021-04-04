@@ -1,7 +1,7 @@
 from ply.lex import TOKEN, LexToken, lex
 
-from cmp.helpers import LogMixin
 from cmp.grammar.cmp_tables import abs_module_path
+from cmp.helpers import LogMixin
 
 
 class Lexer(LogMixin):
@@ -120,7 +120,7 @@ class Lexer(LogMixin):
 
     @TOKEN(constant_1 + constant_2 + constant_3)
     def t_CONSTANT(self, token_: LexToken) -> LexToken:
-        ...
+        return token_
 
     @TOKEN(identifier)
     def t_IDENTIFIER(self, token_: LexToken) -> LexToken:
@@ -135,7 +135,7 @@ class Lexer(LogMixin):
     @TOKEN(transpose_1 + transpose_2)
     def t_TRANSPOSE(self, token_: LexToken) -> LexToken:
         """"""
-        ...
+        return token_
 
     def t_NEWLINE(self, token_: LexToken) -> LexToken:
         r"""\n"""
@@ -148,7 +148,6 @@ class Lexer(LogMixin):
 
     def token(self) -> LexToken:
         last_token = self._lexer.token()
-        self.logger.info(f"Lexer: Token -> {last_token}")
         return last_token
 
 

@@ -12,9 +12,9 @@ def string() -> str:
             do_something
         else
             to_do
-        
-        
-        
+
+
+
         % Just a comment
     '''
 
