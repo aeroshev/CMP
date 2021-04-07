@@ -1,4 +1,5 @@
 if a == 245:
     b = [2, 3, 5]
+    n = 4
 else:
-    to_do
+    m = 'to_do'

@@ -44,24 +44,26 @@ class Visitor:
             node: TwoBranchConditionalNode
     ) -> str:
         main_stmt = self._visit(node.main_stmt)
-        main_branch = '\n'.join(self._visit_list(node.main_branch))
-        alt_branch = '\n'.join(self._visit_list(node.alt_branch))
+        main_branch = ''
+        for elem in self._visit_list(node.main_branch):
+            main_branch += f'{self.python_tabulate}{elem}'
+        alt_branch = ''
+        for elem in self._visit_list(node.alt_branch):
+            alt_branch += f'{self.python_tabulate}{elem}'
         output_str = (
             f'if {main_stmt}:\n'
-            f'{self.python_tabulate}{main_branch}\n'
+            f'{main_branch}'
             f'else:\n'
-            f'{self.python_tabulate}{alt_branch}'
+            f'{alt_branch}'
         )
         return str(output_str)
 
     def _visit_assignment_node(self, node: AssignmentNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
-        print(f'lhs {lhs}, rhs {rhs}')
-        return f'{lhs} = {rhs}'
+        return f'{lhs} = {rhs}\n'   # ???
 
     def _visit_simple_node(self, node: SimpleNode) -> str:
-        print(node.content)
         return node.content
 
     def _visit_array_vector_node(self, node: ArrayVectorNode) -> str:
@@ -79,3 +81,17 @@ class Visitor:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
         return f'{lhs} == {rhs}'
+
+    def _visit_for_loop_node(self, node: ForLoopNode) -> str:
+        iterator = node.iter
+        expression = self._visit(node.express)
+        body = self._visit_list(node.body)
+        body_str = ''
+        for instruction in body:
+            body_str += f'{self.python_tabulate}{instruction}'
+        return f'for {iterator} in {expression}:\n' + body_str
+
+    def _visit_sparse_node(self, node: SparseNode) -> str:
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'range({lhs}, {rhs})'
