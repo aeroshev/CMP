@@ -315,6 +315,10 @@ class Parser(LogMixin):
         jump_statement : BREAK eostmt
                        | RETURN eostmt
         """
+        if p[1] == 'break':
+            p[0] = BreakNode()
+        elif p[1] == 'return':
+            p[0] = ReturnNode()
 
     def p_translation_unit(self, p: YaccProduction) -> None:
         """
@@ -393,10 +397,20 @@ for c = 1:s
 end
 '''
 
+data5 = '''
+counter = 15
+
+for (i = 1:counter)
+    if (i == 10)
+        break
+    end
+end
+'''
+
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data1, debug_level=False)
+    ast = parser.parse(text=data5, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)

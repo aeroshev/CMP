@@ -27,6 +27,7 @@ from .relational import (
 )
 from .root import FileAST
 from .sparse import SparseNode
+from .jump_stmt import BreakNode, ReturnNode
 
 __all__ = (
     "AssignmentNode",
@@ -57,5 +58,7 @@ __all__ = (
     "ArrayVectorNode",
     "FileAST",
     "ForLoopNode",
-    "SparseNode"
+    "SparseNode",
+    "BreakNode",
+    "ReturnNode"
 )

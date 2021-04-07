@@ -18,7 +18,7 @@ class SimpleConditionalNode(ConditionalNode):
     >>> if (expression is True)
     >>>         do_something
     """
-    __slots__ = ("main_statement", "statements_list")
+    __slots__ = ("main_stmt", "stmt_list")
 
     def __init__(self, main_stmt: Node, stmt_list: List[Node]) -> None:
         super().__init__(main_stmt)
