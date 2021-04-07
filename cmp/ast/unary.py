@@ -1,36 +1,16 @@
-from typing import Any, Dict, Iterator, List
-
 from .node import Node
 
 
 class PlusUnaryNode(Node):
-    """"""
+    """Object if unary plus"""
     __slots__ = ()
-
-    def children(self) -> List[Dict[str, Any]]:
-        ...
-
-    def __iter__(self) -> Iterator[None]:
-        yield
 
 
 class MinusUnaryNode(Node):
-    """"""
+    """Object if unary minus"""
     __slots__ = ()
-
-    def children(self) -> List[Dict[str, Any]]:
-        ...
-
-    def __iter__(self) -> Iterator[None]:
-        yield
 
 
 class NegativeUnaryNode(Node):
-    """"""
+    """Object if negation"""
     __slots__ = ()
-
-    def children(self) -> List[Dict[str, Any]]:
-        ...
-
-    def __iter__(self) -> Iterator[None]:
-        yield

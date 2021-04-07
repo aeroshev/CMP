@@ -1,10 +1,10 @@
-from typing import Any, Iterator, List
+from typing import Iterator
 
 from .node import Node
 
 
 class FileAST(Node):
-    """"""
+    """Entry point in AST"""
     __slots__ = "root"
 
     def __init__(self, root: Node) -> None:
@@ -13,9 +13,3 @@ class FileAST(Node):
     def __iter__(self) -> Iterator[Node]:
         for stmt in self.root:
             yield stmt
-
-    def children(self) -> List[Any]:
-        nodes_list = []
-        for elem in self.root:
-            nodes_list += elem.children()
-        return nodes_list

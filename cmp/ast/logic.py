@@ -3,7 +3,7 @@ from .node import Node
 
 
 class AndNode(LhsRhsNode):
-    """"""
+    """Object of logic AND"""
     __slots__ = ("lhs", "rhs")
 
     def __init__(self, lhs: Node, rhs: Node) -> None:
@@ -11,7 +11,7 @@ class AndNode(LhsRhsNode):
 
 
 class OrNode(LhsRhsNode):
-    """"""
+    """Object of logic OR"""
     __slots__ = ("lhs", "rhs")
 
     def __init__(self, lhs: Node, rhs: Node) -> None:

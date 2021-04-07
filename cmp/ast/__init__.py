@@ -7,6 +7,7 @@ from .equality import NegativeEqualityNode, PositiveEqualityNode
 from .finite_unit import SimpleNode
 from .function import FunctionNode
 from .identifier import IdentifierNode
+from .iterations import ForLoopNode
 from .logic import AndNode, OrNode
 from .multiplicative import (
     ArrayDivNode,
@@ -17,7 +18,7 @@ from .multiplicative import (
     MultiplyNode,
     PowerNode
 )
-from .node import EmptyNode, Node
+from .node import Node
 from .relational import (
     GreaterEqualRelationalNode,
     GreaterRelationalNode,
@@ -25,6 +26,7 @@ from .relational import (
     LowerRelationalNode
 )
 from .root import FileAST
+from .sparse import SparseNode
 
 __all__ = (
     "AssignmentNode",
@@ -40,7 +42,6 @@ __all__ = (
     "OrNode",
     "SimpleConditionalNode",
     "TwoBranchConditionalNode",
-    "EmptyNode",
     "MultiplyNode",
     "DivideNode",
     "PowerNode",
@@ -54,5 +55,7 @@ __all__ = (
     "FunctionNode",
     "SimpleNode",
     "ArrayVectorNode",
-    "FileAST"
+    "FileAST",
+    "ForLoopNode",
+    "SparseNode"
 )

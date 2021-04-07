@@ -32,8 +32,7 @@ class Parser(LogMixin):
     def __init__(
             self,
             lexer=Lexer,
-            yacc_debug=True,
-            tab_out_put_dir=''
+            yacc_debug=True
     ) -> None:
         self._lex = lexer()
         self.tokens = self._lex.tokens
@@ -56,19 +55,18 @@ class Parser(LogMixin):
         else:
             p[0] = p[1]
 
+    @staticmethod
     def _save_merge(
-            self,
             left: Union[List[Node], Node],
             right: Node
     ) -> List[Node]:
-        res = []
-        if isinstance(left, EmptyNode):
-            res += [right]
-        elif isinstance(right, EmptyNode):
-            res += left
+        if left is None:
+            res_ = right
+        elif right is None:
+            res_ = left
         else:
-            res = [*left, right]
-        return res
+            res_ = [*left, right]
+        return res_
 
     def parse(self, text, filename='', debug_level=True) -> Any:
         return self._parser.parsedebug(
@@ -109,7 +107,7 @@ class Parser(LogMixin):
         index_expression : ':'
                          | expression
         """
-        p[0] = p[1] if p[1] != ':' else EmptyNode()
+        p[0] = p[1] if p[1] != ':' else None
 
     def p_index_expression_list(self, p: YaccProduction) -> None:
         """
@@ -196,7 +194,7 @@ class Parser(LogMixin):
         expression : or_expression
                    | expression ':' or_expression
         """
-        p[0] = p[1] if len(p) == 2 else ...  # TODO
+        p[0] = p[1] if len(p) == 2 else SparseNode(lhs=p[1], rhs=p[3])
 
     def p_assignment_expression(self, p: YaccProduction) -> None:
         """
@@ -210,7 +208,6 @@ class Parser(LogMixin):
                | ';'
                | NEWLINE
         """
-        p[0] = EmptyNode()
 
     def p_statement(self, p: YaccProduction) -> None:
         """
@@ -255,7 +252,7 @@ class Parser(LogMixin):
         expression_statement : eostmt
                              | expression eostmt
         """
-        p[0] = EmptyNode() if len(p) == 2 else p[1]
+        p[0] = p[1] if len(p) == 2 else self._save_merge(left=p[1], right=p[2])
 
     def p_assignment_statement(self, p: YaccProduction) -> None:
         """
@@ -305,6 +302,13 @@ class Parser(LogMixin):
                             | FOR IDENTIFIER '=' expression statement_list END eostmt
                             | FOR '(' IDENTIFIER '=' expression ')' statement_list END eostmt
         """
+        if len(p) == 6:
+            ...
+        else:
+            if len(p) == 8:
+                p[0] = ForLoopNode(iterator=p[2], express=p[4], body=p[5])
+            else:
+                p[0] = ForLoopNode(iterator=p[3], express=p[5], body=p[8])
 
     def p_jump_statement(self, p: YaccProduction) -> None:
         """
@@ -315,14 +319,14 @@ class Parser(LogMixin):
     def p_translation_unit(self, p: YaccProduction) -> None:
         """
         translation_unit : statement_list
-                         | FUNCTION func_declare eostmt statement_list
+                         | FUNCTION func_declare eostmt statement_list END
         """
         if len(p) == 2:
             p[0] = FileAST(root=p[1])
         else:
             p[0] = self._save_merge(
-                left=FunctionNode(declare=p[2], body=[]),  # TODO
-                right=p[4]
+                left=p[1],
+                right=p[2]
             )
 
     def p_func_identifier_list(self, p: YaccProduction) -> None:
@@ -361,8 +365,9 @@ class Parser(LogMixin):
 data1 = '''
 if (a == 245)
     b = [2, 3, 5]
+    n = 4
 else
-    to_do
+    'to_do'
 end
 
 
@@ -373,9 +378,25 @@ end
 data2 = '''b = [2 * 2, 3, 5]
 '''
 
+data3 = '''function [m, s] = stat(x)
+    n = x + x
+    m = n + x
+    s = m + n
+end
+'''
+
+data4 = '''
+s = 10;
+
+for c = 1:s
+    n = 1
+end
+'''
+
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
     ast = parser.parse(text=data1, debug_level=False)
     v = Visitor()
-    v.traverse_ast(ast)
+    res = v.traverse_ast(ast)
+    print(res)

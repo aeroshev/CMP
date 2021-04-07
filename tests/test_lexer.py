@@ -9,9 +9,9 @@ from cmp.grammar.lexer import Lexer
 def string() -> str:
     return '''
         if (a == 245)
-            do_something
+            'do_something'
         else
-            to_do
+            'to_do'
 
 
 
@@ -21,7 +21,7 @@ def string() -> str:
 
 @pytest.fixture
 def right_tokens() -> Iterator[str]:
-    return iter(['IF', '(', 'STRING_LITERAL', 'EQ_OP', 'STRING_LITERAL',
+    return iter(['IF', '(', 'IDENTIFIER', 'EQ_OP', 'CONSTANT',
                  ')', 'STRING_LITERAL', 'ELSE', 'STRING_LITERAL'])
 
 

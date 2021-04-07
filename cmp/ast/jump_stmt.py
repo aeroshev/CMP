@@ -1,25 +1,11 @@
-from typing import Any, Dict, Iterator, List
-
 from .node import Node
 
 
 class BreakNode(Node):
-    """"""
+    """Key word BREAK"""
     __slots__ = ()
-
-    def children(self) -> List[Dict[str, Any]]:
-        ...
-
-    def __iter__(self) -> Iterator[None]:
-        yield
 
 
 class ReturnNode(Node):
-    """"""
+    """Key word RETURN"""
     __slots__ = ()
-
-    def children(self) -> List[Dict[str, Any]]:
-        ...
-
-    def __iter__(self) -> Iterator[None]:
-        yield
