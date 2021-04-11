@@ -16,7 +16,7 @@ class FunctionDeclareNode(Node):
     """Declaration of function"""
     __slots__ = ("return_list", "name")
 
-    def __init__(self, return_list: Optional[Node], name: Node) -> None:
+    def __init__(self, return_list: Optional[List[str]], name: Node) -> None:
         self.return_list = return_list
         self.name = name
 

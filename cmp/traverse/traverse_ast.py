@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, TextIO
+from typing import Any, List, Optional, TextIO, Tuple
 
 from cmp.ast import *
 from cmp.helpers import camel_to_snake
@@ -113,3 +113,32 @@ class Visitor:
 
     def _visit_break_node(self, node: BreakNode) -> str:
         return 'break\n'
+
+    def _visit_function_node(self, node: FunctionNode) -> str:
+        declare, return_list = self._visit(node.declare)
+        body = self._visit_list(node.body)
+        body_str = ''
+        for instruction in body:
+            body_str += f'{self.python_tabulate}{instruction}'
+        return_str = f'{self.python_tabulate}return '
+        return_str += ', '.join(return_list)
+        func_str = f'def {declare}:\n' + body_str + return_str
+        return func_str
+
+    def _visit_function_declare_node(self, node: FunctionDeclareNode) -> Tuple[str, Optional[List[str]]]:
+        name = self._visit(node.name)
+        return f'{name}', node.return_list
+
+    def _visit_function_name_node(self, node: FunctionNameNode) -> str:
+        name = self._visit(node.name)
+        input_list = self._visit_list(node.input_list)
+        input_str = ', '.join(input_list)
+        return f'{name}({input_str})'
+
+    def _visit_str(self, string: str) -> str:
+        return string
+
+    def _visit_plus_node(self, node: PlusNode) -> str:  # TODO add pattern
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} + {rhs}\n'
