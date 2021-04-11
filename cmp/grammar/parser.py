@@ -1,5 +1,5 @@
-from typing import Any, List, Union, Optional
 from itertools import chain
+from typing import Any, List, Union
 
 from ply.yacc import YaccProduction, yacc
 
