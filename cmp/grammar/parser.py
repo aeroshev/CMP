@@ -338,9 +338,9 @@ class Parser(LogMixin):
                              | func_identifier_list ',' IDENTIFIER
         """
         if len(p) == 2:
-            p[0] = p[1]
+            p[0] = SimpleNode(p[1])
         else:
-            p[0] = self._save_merge(left=p[1], right=p[3])
+            p[0] = self._save_merge(left=p[1], right=SimpleNode(p[3]))
 
     def p_func_return_list(self, p: YaccProduction) -> None:
         """

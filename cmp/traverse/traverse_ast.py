@@ -127,7 +127,11 @@ class Visitor:
 
     def _visit_function_declare_node(self, node: FunctionDeclareNode) -> Tuple[str, Optional[List[str]]]:
         name = self._visit(node.name)
-        return f'{name}', node.return_list
+        return_list = self._visit_list(node.return_list)
+        return_list_str = []
+        for elem in return_list:
+            return_list_str.append(elem)
+        return f'{name}', return_list_str
 
     def _visit_function_name_node(self, node: FunctionNameNode) -> str:
         name = self._visit(node.name)
@@ -141,4 +145,4 @@ class Visitor:
     def _visit_plus_node(self, node: PlusNode) -> str:  # TODO add pattern
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
-        return f'{lhs} + {rhs}\n'
+        return f'{lhs} + {rhs}'
