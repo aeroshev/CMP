@@ -308,7 +308,7 @@ class Parser(LogMixin):
             if len(p) == 8:
                 p[0] = ForLoopNode(iterator=p[2], express=p[4], body=p[5])
             else:
-                p[0] = ForLoopNode(iterator=p[3], express=p[5], body=p[8])
+                p[0] = ForLoopNode(iterator=p[3], express=p[5], body=p[7])
 
     def p_jump_statement(self, p: YaccProduction) -> None:
         """
