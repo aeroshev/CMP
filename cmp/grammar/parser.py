@@ -338,7 +338,7 @@ class Parser(LogMixin):
                              | func_identifier_list ',' IDENTIFIER
         """
         if len(p) == 2:
-            p[0] = [p[1]]
+            p[0] = p[1]
         else:
             p[0] = self._save_merge(left=p[1], right=p[3])
 
@@ -347,6 +347,10 @@ class Parser(LogMixin):
         func_return_list : IDENTIFIER
                          | '[' func_identifier_list ']'
         """
+        if len(p) == 2:
+            p[0] = p[1]
+        else:
+            p[0] = p[2]
 
     def p_func_declare_lhs(self, p: YaccProduction) -> None:
         """
@@ -354,12 +358,20 @@ class Parser(LogMixin):
                          | IDENTIFIER '(' ')'
                          | IDENTIFIER '(' func_identifier_list ')'
         """
+        if len(p) < 5:
+            p[0] = FunctionNameNode(name=p[1], input_list=[])
+        else:
+            p[0] = FunctionNameNode(name=p[1], input_list=p[3])
 
     def p_func_declare(self, p: YaccProduction) -> None:
         """
         func_declare : func_declare_lhs
                      | func_return_list '=' func_declare_lhs
         """
+        if len(p) == 2:
+            p[0] = FunctionDeclareNode(return_list=None, name=p[1])
+        else:
+            p[0] = FunctionDeclareNode(return_list=p[1], name=p[3])
 
     def p_func_statement(self, p: YaccProduction) -> None:
         """

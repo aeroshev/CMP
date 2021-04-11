@@ -5,7 +5,7 @@ from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
 from .finite_unit import SimpleNode
-from .function import FunctionNode
+from .function import FunctionNode, FunctionDeclareNode, FunctionNameNode
 from .identifier import IdentifierNode
 from .iterations import ForLoopNode
 from .logic import AndNode, OrNode
@@ -63,5 +63,7 @@ __all__ = (
     "BreakNode",
     "ReturnNode",
     "PlusNode",
-    "MinusNode"
+    "MinusNode",
+    "FunctionDeclareNode",
+    "FunctionNameNode"
 )
