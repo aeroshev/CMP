@@ -28,6 +28,3 @@ class FunctionNameNode(Node):
     def __init__(self, name: Node, input_list: Optional[List[Node]]) -> None:
         self.name = name
         self.input_list = input_list
-
-
-
