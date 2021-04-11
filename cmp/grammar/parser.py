@@ -1,4 +1,5 @@
-from typing import Any, List, Union
+from typing import Any, List, Union, Optional
+from itertools import chain
 
 from ply.yacc import YaccProduction, yacc
 
@@ -26,7 +27,9 @@ class Parser(LogMixin):
         "|": OrNode,
         "*": MultiplyNode,
         "/": DivideNode,
-        "^": PowerNode
+        "^": PowerNode,
+        "+": PlusNode,
+        "-": MinusNode
     }
 
     def __init__(
@@ -57,15 +60,17 @@ class Parser(LogMixin):
 
     @staticmethod
     def _save_merge(
-            left: Union[List[Node], Node],
-            right: Node
+            left: Union[List[Node], Node, None],
+            right: Union[List[Node], Node, None]
     ) -> List[Node]:
         if left is None:
             res_ = right
         elif right is None:
             res_ = left
         else:
-            res_ = [*left, right]
+            res_ = [*left, *right]
+        if res_:
+            res_ = list(filter(lambda x: x is not None, chain(res_)))
         return res_
 
     def parse(self, text, filename='', debug_level=True) -> Any:
@@ -218,6 +223,7 @@ class Parser(LogMixin):
                   | selection_statement
                   | iteration_statement
                   | jump_statement
+                  | func_statement
         """
         p[0] = p[1]
 
@@ -323,15 +329,8 @@ class Parser(LogMixin):
     def p_translation_unit(self, p: YaccProduction) -> None:
         """
         translation_unit : statement_list
-                         | FUNCTION func_declare eostmt statement_list END
         """
-        if len(p) == 2:
-            p[0] = FileAST(root=p[1])
-        else:
-            p[0] = self._save_merge(
-                left=p[1],
-                right=p[2]
-            )
+        p[0] = FileAST(root=p[1])
 
     def p_func_identifier_list(self, p: YaccProduction) -> None:
         """
@@ -361,6 +360,12 @@ class Parser(LogMixin):
         func_declare : func_declare_lhs
                      | func_return_list '=' func_declare_lhs
         """
+
+    def p_func_statement(self, p: YaccProduction) -> None:
+        """
+        func_statement : FUNCTION func_declare eostmt statement_list END
+        """
+        p[0] = FunctionNode(declare=p[2], body=p[4])
 
     def p_error(self, p: YaccProduction) -> None:
         print(f"Syntax error in input! {p}")
@@ -407,10 +412,13 @@ for (i = 1:counter)
 end
 '''
 
+data6 = '''
+
+'''
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data5, debug_level=False)
+    ast = parser.parse(text=data3, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)

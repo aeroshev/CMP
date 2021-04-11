@@ -28,6 +28,7 @@ from .relational import (
 from .root import FileAST
 from .sparse import SparseNode
 from .jump_stmt import BreakNode, ReturnNode
+from .additive import PlusNode, MinusNode
 
 __all__ = (
     "AssignmentNode",
@@ -60,5 +61,7 @@ __all__ = (
     "ForLoopNode",
     "SparseNode",
     "BreakNode",
-    "ReturnNode"
+    "ReturnNode",
+    "PlusNode",
+    "MinusNode"
 )
