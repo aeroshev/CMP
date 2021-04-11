@@ -15,7 +15,9 @@ PYTHON_OUTPUT = './python_output/'
 @pytest.fixture(params=[
     (os.path.join(MATLAB_SAMPLES, 'sample_1.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_1.py')),
     (os.path.join(MATLAB_SAMPLES, 'sample_2.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_2.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_4.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_4.py'))
+    (os.path.join(MATLAB_SAMPLES, 'sample_3.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_3.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_4.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_4.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_5.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_5.py'))
 ])
 def sample(request: SubRequest) -> Iterator[Tuple[str, str]]:
     with open(request.param[0], "r") as matlab_file, open(request.param[1], "r") as python_file:

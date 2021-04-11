@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, TextIO, Tuple
 
 from cmp.ast import *
 from cmp.helpers import camel_to_snake
@@ -10,14 +10,15 @@ class Visitor:
     translating it to Python code in the specified file
     """
     def __init__(self, filename: str = 'output.py') -> None:
-        self._output = open(filename, "w", encoding="utf-8")
+        self.depth = 0  # type: int
+        self._output = open(filename, "w", encoding="utf-8")  # type: TextIO
 
     def __del__(self) -> None:
         self._output.close()
 
     @property
     def python_tabulate(self) -> str:
-        return ' ' * 4
+        return ' ' * 4 * self.depth
 
     def traverse_ast(self, root: FileAST, use_file: bool = False) -> Optional[str]:
         res_str = ''
@@ -31,7 +32,10 @@ class Visitor:
 
     def _visit(self, node: Node) -> Any:
         method = '_visit_' + camel_to_snake(node.__class__.__name__)
-        return getattr(self, method)(node)
+        self.depth += 1
+        res = getattr(self, method)(node)
+        self.depth -= 1
+        return res
 
     def _visit_list(self, list_nodes: List[Node]) -> List[str]:
         res = []
@@ -56,7 +60,7 @@ class Visitor:
             f'else:\n'
             f'{alt_branch}'
         )
-        return str(output_str)
+        return output_str
 
     def _visit_assignment_node(self, node: AssignmentNode) -> str:
         lhs = self._visit(node.lhs)
@@ -95,3 +99,50 @@ class Visitor:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
         return f'range({lhs}, {rhs})'
+
+    def _visit_simple_conditional_node(self, node: SimpleConditionalNode) -> str:
+        main_stmt = self._visit(node.main_stmt)
+        main_branch = ''
+        for elem in self._visit_list(node.stmt_list):
+            main_branch += f'{self.python_tabulate}{elem}'
+        output_str = (
+            f'if {main_stmt}:\n'
+            f'{main_branch}'
+        )
+        return output_str
+
+    def _visit_break_node(self, node: BreakNode) -> str:
+        return 'break\n'
+
+    def _visit_function_node(self, node: FunctionNode) -> str:
+        declare, return_list = self._visit(node.declare)
+        body = self._visit_list(node.body)
+        body_str = ''
+        for instruction in body:
+            body_str += f'{self.python_tabulate}{instruction}'
+        return_str = f'{self.python_tabulate}return '
+        return_str += ', '.join(return_list)
+        func_str = f'def {declare}:\n' + body_str + return_str
+        return func_str
+
+    def _visit_function_declare_node(self, node: FunctionDeclareNode) -> Tuple[str, Optional[List[str]]]:
+        name = self._visit(node.name)
+        return_list = self._visit_list(node.return_list)
+        return_list_str = []
+        for elem in return_list:
+            return_list_str.append(elem)
+        return f'{name}', return_list_str
+
+    def _visit_function_name_node(self, node: FunctionNameNode) -> str:
+        name = self._visit(node.name)
+        input_list = self._visit_list(node.input_list)
+        input_str = ', '.join(input_list)
+        return f'{name}({input_str})'
+
+    def _visit_str(self, string: str) -> str:
+        return string
+
+    def _visit_plus_node(self, node: PlusNode) -> str:  # TODO add pattern
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} + {rhs}'

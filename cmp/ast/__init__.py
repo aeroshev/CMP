@@ -1,3 +1,4 @@
+from .additive import MinusNode, PlusNode
 from .array import ArrayNode, ArrayVectorNode
 from .assigment import AssignmentNode
 from .conditional_statement import SimpleConditionalNode, TwoBranchConditionalNode
@@ -5,9 +6,10 @@ from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
 from .finite_unit import SimpleNode
-from .function import FunctionNode
+from .function import FunctionDeclareNode, FunctionNameNode, FunctionNode
 from .identifier import IdentifierNode
 from .iterations import ForLoopNode
+from .jump_stmt import BreakNode, ReturnNode
 from .logic import AndNode, OrNode
 from .multiplicative import (
     ArrayDivNode,
@@ -57,5 +59,11 @@ __all__ = (
     "ArrayVectorNode",
     "FileAST",
     "ForLoopNode",
-    "SparseNode"
+    "SparseNode",
+    "BreakNode",
+    "ReturnNode",
+    "PlusNode",
+    "MinusNode",
+    "FunctionDeclareNode",
+    "FunctionNameNode"
 )
