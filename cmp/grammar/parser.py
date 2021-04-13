@@ -425,12 +425,15 @@ end
 '''
 
 data6 = '''
+A = [1, 1, 0, 0];
+B = [1; 2; 3; 4];
 
+C = A * B
 '''
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data3, debug_level=False)
+    ast = parser.parse(text=data6, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)
