@@ -1,7 +1,7 @@
 from typing import Any, List, Optional, TextIO, Tuple
 
 from cmp.ast import *
-from cmp.helpers import camel_to_snake
+from cmp.helpers import camel_to_snake, BadInputError
 
 
 class Visitor:
@@ -9,22 +9,28 @@ class Visitor:
     Walk through the generated AST and
     translating it to Python code in the specified file
     """
-    def __init__(self, filename: str = 'output.py') -> None:
+    def __init__(self, filename: str = None) -> None:
         self.depth = 0  # type: int
-        self._output = open(filename, "w", encoding="utf-8")  # type: TextIO
+        if filename:
+            self._output = open(filename, "w", encoding="utf-8")  # type: TextIO
 
     def __del__(self) -> None:
-        self._output.close()
+        if hasattr(self, '_output'):
+            self._output.close()
 
     @property
     def python_tabulate(self) -> str:
         return ' ' * 4 * self.depth
 
-    def traverse_ast(self, root: FileAST, use_file: bool = False) -> Optional[str]:
+    def traverse_ast(self, root: FileAST) -> Optional[str]:
+        if root is None:
+            raise BadInputError('Root of AST is None')
+
         res_str = ''
         for node in root:
             res_str += self._visit(node)
-        if use_file:
+
+        if hasattr(self, '_output'):
             self._output.write(res_str)
             return None
         else:
