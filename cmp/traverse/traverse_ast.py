@@ -1,4 +1,4 @@
-from typing import Any, List, Optional, TextIO, Tuple
+from typing import Any, List, Optional, TextIO, Tuple, Iterator, Union
 
 from cmp.ast import *
 from cmp.helpers import camel_to_snake, BadInputError
@@ -26,7 +26,7 @@ class Visitor:
         if root is None:
             raise BadInputError('Root of AST is None')
 
-        res_str = ''
+        res_str = 'import numpy as np' + '\n\n'
         for node in root:
             res_str += self._visit(node)
 
@@ -36,7 +36,7 @@ class Visitor:
         else:
             return res_str
 
-    def _visit(self, node: Node) -> Any:
+    def _visit(self, node: Union[Node, List[Node]]) -> Any:
         method = '_visit_' + camel_to_snake(node.__class__.__name__)
         self.depth += 1
         res = getattr(self, method)(node)
@@ -44,9 +44,11 @@ class Visitor:
         return res
 
     def _visit_list(self, list_nodes: List[Node]) -> List[str]:
+        self.depth -= 1
         res = []
         for node in list_nodes:
             res.append(self._visit(node))
+        self.depth += 1
         return res
 
     def _visit_two_branch_conditional_node(
@@ -55,15 +57,15 @@ class Visitor:
     ) -> str:
         main_stmt = self._visit(node.main_stmt)
         main_branch = ''
-        for elem in self._visit_list(node.main_branch):
+        for elem in self._visit(node.main_branch):
             main_branch += f'{self.python_tabulate}{elem}'
         alt_branch = ''
-        for elem in self._visit_list(node.alt_branch):
+        for elem in self._visit(node.alt_branch):
             alt_branch += f'{self.python_tabulate}{elem}'
         output_str = (
-            f'if {main_stmt}:\n'
+            f'if {main_stmt}:'
             f'{main_branch}'
-            f'else:\n'
+            f'else:'
             f'{alt_branch}'
         )
         return output_str
@@ -71,16 +73,36 @@ class Visitor:
     def _visit_assignment_node(self, node: AssignmentNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
-        return f'{lhs} = {rhs}\n'   # ???
+        return f'{lhs} = {rhs}'
 
     def _visit_simple_node(self, node: SimpleNode) -> str:
         return node.content
 
+    @staticmethod
+    def _split_by_chunks(big_list: List[Node]) -> Iterator[List[Node]]:
+        chunk = []
+        for elem in big_list:
+            if elem == ';':
+                yield chunk
+                chunk = []
+                continue
+            if elem == ',':
+                continue
+            chunk.append(elem)
+        yield chunk
+
     def _visit_array_vector_node(self, node: ArrayVectorNode) -> str:
-        res = []
-        for elem in node.content:
-            res.append(self._visit(elem))
-        return '[' + ', '.join(res) + ']'
+        res = ''
+        list_elems = []
+        res += '['
+        for shape, chunk in enumerate(self._split_by_chunks(node.content)):
+            for elem in chunk:
+                list_elems.append(self._visit(elem))
+            res += '[' + ', '.join(list_elems) + ']'
+            list_elems = []
+        res += ']'
+
+        return f'np.array({res})'
 
     def _visit_multiply_node(self, node: MultiplyNode) -> str:
         lhs = self._visit(node.lhs)
@@ -95,11 +117,11 @@ class Visitor:
     def _visit_for_loop_node(self, node: ForLoopNode) -> str:
         iterator = node.iter
         expression = self._visit(node.express)
-        body = self._visit_list(node.body)
+        body = self._visit(node.body)
         body_str = ''
         for instruction in body:
             body_str += f'{self.python_tabulate}{instruction}'
-        return f'for {iterator} in {expression}:\n' + body_str
+        return f'for {iterator} in {expression}:' + body_str
 
     def _visit_sparse_node(self, node: SparseNode) -> str:
         lhs = self._visit(node.lhs)
@@ -109,20 +131,20 @@ class Visitor:
     def _visit_simple_conditional_node(self, node: SimpleConditionalNode) -> str:
         main_stmt = self._visit(node.main_stmt)
         main_branch = ''
-        for elem in self._visit_list(node.stmt_list):
+        for elem in self._visit(node.stmt_list):
             main_branch += f'{self.python_tabulate}{elem}'
         output_str = (
-            f'if {main_stmt}:\n'
+            f'if {main_stmt}:'
             f'{main_branch}'
         )
         return output_str
 
     def _visit_break_node(self, node: BreakNode) -> str:
-        return 'break\n'
+        return 'break'
 
     def _visit_function_node(self, node: FunctionNode) -> str:
         declare, return_list = self._visit(node.declare)
-        body = self._visit_list(node.body)
+        body = self._visit(node.body)
         body_str = ''
         for instruction in body:
             body_str += f'{self.python_tabulate}{instruction}'
@@ -133,7 +155,7 @@ class Visitor:
 
     def _visit_function_declare_node(self, node: FunctionDeclareNode) -> Tuple[str, Optional[List[str]]]:
         name = self._visit(node.name)
-        return_list = self._visit_list(node.return_list)
+        return_list = self._visit(node.return_list)
         return_list_str = []
         for elem in return_list:
             return_list_str.append(elem)
@@ -141,14 +163,26 @@ class Visitor:
 
     def _visit_function_name_node(self, node: FunctionNameNode) -> str:
         name = self._visit(node.name)
-        input_list = self._visit_list(node.input_list)
+        input_list = self._visit(node.input_list)
         input_str = ', '.join(input_list)
         return f'{name}({input_str})'
 
-    def _visit_str(self, string: str) -> str:
+    @staticmethod
+    def _visit_str(string: str) -> str:
+        if string == ';':
+            return ''
         return string
 
     def _visit_plus_node(self, node: PlusNode) -> str:  # TODO add pattern
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
         return f'{lhs} + {rhs}'
+
+    def _visit_unary_expression_node(self, node: UnaryExpressionNode) -> str:
+        return f'{node.unary_op}{self._visit(node.expr)}'
+
+    def _visit_identifier_node(self, node: IdentifierNode) -> str:
+        return node.ident
+
+    def _visit_constant_node(self, node: ConstantNode) -> str:
+        return node.const

@@ -52,6 +52,12 @@ class Parser(LogMixin):
         self._last_yielded_token = None
         self._err_flag = False
 
+    precedence = (
+        ('right', '-'),
+        ('right', '~'),
+        ('right', '+')
+    )
+
     def _lhs_rhs_expression(self, p: YaccProduction) -> None:
         if len(p) == 4:
             p[0] = self.handlers[p[2]](lhs=p[1], rhs=p[3])
@@ -82,15 +88,15 @@ class Parser(LogMixin):
 
     def p_primary_expression(self, p: YaccProduction) -> None:
         """
-        primary_expression : IDENTIFIER
-                           | CONSTANT
-                           | STRING_LITERAL
+        primary_expression : identifier_expression
+                           | constant_expression
+                           | string_literal_expression
                            | '(' expression ')'
                            | '[' ']'
                            | '[' array_list ']'
         """
         if len(p) == 2:
-            p[0] = SimpleNode(content=p[1])
+            p[0] = p[1]
         elif len(p) == 3:
             p[0] = ArrayVectorNode(content=[])
         else:
@@ -98,6 +104,24 @@ class Parser(LogMixin):
                 p[0] = ArrayVectorNode(content=p[2])
             elif p[1] == '(':
                 p[0] = p[2]
+
+    def p_identifier_expression(self, p: YaccProduction) -> None:
+        """
+        identifier_expression : IDENTIFIER
+        """
+        p[0] = IdentifierNode(p[1])
+
+    def p_constant_expression(self, p: YaccProduction) -> None:
+        """
+        constant_expression : CONSTANT
+        """
+        p[0] = ConstantNode(p[1])
+
+    def p_string_literal_expression(self, p: YaccProduction) -> None:
+        """
+        string_literal_expression : STRING_LITERAL
+        """
+        p[0] = SimpleNode(p[1])
 
     def p_postfix_expression(self, p: YaccProduction) -> None:
         """
@@ -132,7 +156,7 @@ class Parser(LogMixin):
         unary_expression : postfix_expression
                          | unary_operator postfix_expression
         """
-        p[0] = p[1] if len(p) == 2 else ...  # TODO
+        p[0] = p[1] if len(p) == 2 else UnaryExpressionNode(unary_op=p[1], expr=p[2])
 
     def p_unary_operator(self, p: YaccProduction) -> None:
         """
@@ -140,6 +164,7 @@ class Parser(LogMixin):
                        | '-'
                        | '~'
         """
+        p[0] = p[1]
 
     def p_multiplicative_expression(self, p: YaccProduction) -> None:
         """
@@ -213,6 +238,7 @@ class Parser(LogMixin):
                | ';'
                | NEWLINE
         """
+        p[0] = p[1]
 
     def p_statement(self, p: YaccProduction) -> None:
         """
@@ -264,7 +290,7 @@ class Parser(LogMixin):
         """
         assignment_statement : assignment_expression eostmt
         """
-        p[0] = p[1]
+        p[0] = [p[1], p[2]]
 
     def p_array_element(self, p: YaccProduction) -> None:
         """
@@ -428,12 +454,19 @@ data6 = '''
 A = [1, 1, 0, 0];
 B = [1; 2; 3; 4];
 
+C = B * A
+'''
+
+data7 = '''
+A = [1 3 5; 2 4 7];
+B = [-5 8 11; 3 9 21; 4 0 8];
+
 C = A * B
 '''
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data6, debug_level=False)
+    ast = parser.parse(text=data4, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)

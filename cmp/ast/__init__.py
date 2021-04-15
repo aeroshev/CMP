@@ -5,9 +5,8 @@ from .conditional_statement import SimpleConditionalNode, TwoBranchConditionalNo
 from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
-from .finite_unit import SimpleNode
+from .finite_unit import SimpleNode, IdentifierNode, ConstantNode
 from .function import FunctionDeclareNode, FunctionNameNode, FunctionNode
-from .identifier import IdentifierNode
 from .iterations import ForLoopNode
 from .jump_stmt import BreakNode, ReturnNode
 from .logic import AndNode, OrNode
@@ -29,6 +28,7 @@ from .relational import (
 )
 from .root import FileAST
 from .sparse import SparseNode
+from .unary_expression import UnaryExpressionNode
 
 __all__ = (
     "AssignmentNode",
@@ -65,5 +65,8 @@ __all__ = (
     "PlusNode",
     "MinusNode",
     "FunctionDeclareNode",
-    "FunctionNameNode"
+    "FunctionNameNode",
+    "UnaryExpressionNode",
+    "IdentifierNode",
+    "ConstantNode"
 )

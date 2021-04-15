@@ -1,3 +1,5 @@
+from typing import Union
+
 from .node import Node
 
 
@@ -10,3 +12,19 @@ class SimpleNode(Node):
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__ } ({self.content})'
+
+
+class IdentifierNode(Node):
+    """"""
+    __slots__ = "ident"
+
+    def __init__(self, ident: str) -> None:
+        self.ident = ident
+
+
+class ConstantNode(Node):
+    """"""
+    __slots__ = "const"
+
+    def __init__(self, const: str) -> None:
+        self.const = const

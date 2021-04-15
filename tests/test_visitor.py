@@ -38,6 +38,6 @@ def ast(sample: Tuple[str, str]) -> FileAST:
 def test_traverse(sample: Tuple[str, str], ast: FileAST) -> None:
     _, python_output = sample
     visitor = Visitor()
-    res_string = visitor.traverse_ast(root=ast, use_file=False)
+    res_string = visitor.traverse_ast(root=ast)
 
     assert res_string == python_output
