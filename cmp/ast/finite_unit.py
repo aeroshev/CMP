@@ -1,5 +1,3 @@
-from typing import Union
-
 from .node import Node
 
 

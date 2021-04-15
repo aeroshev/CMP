@@ -1,9 +1,9 @@
 import os
-from typing import Optional
 from argparse import ArgumentParser, Namespace
+from typing import Optional
 
 from cmp.grammar import Parser
-from cmp.helpers import LogMixin, Singleton, BadInputError
+from cmp.helpers import BadInputError, LogMixin, Singleton
 from cmp.traverse import Visitor
 
 
@@ -87,7 +87,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
 
     def _get_text(self, args: Namespace) -> Optional[str]:
         if args.string:
-            return args.string
+            return str(args.string)
         else:
             if not self._validate_file(args.path):
                 self.logger.error('Incorrect path file')

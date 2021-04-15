@@ -77,6 +77,8 @@ class Parser(LogMixin):
             res_ = [*left, *right]
         if res_:
             res_ = list(filter(lambda x: x is not None, chain(res_)))
+        else:
+            res_ = []
         return res_
 
     def parse(self, text, filename='', debug_level=True) -> Any:
@@ -395,7 +397,7 @@ class Parser(LogMixin):
                      | func_return_list '=' func_declare_lhs
         """
         if len(p) == 2:
-            p[0] = FunctionDeclareNode(return_list=None, name=p[1])
+            p[0] = FunctionDeclareNode(return_list=[], name=p[1])
         else:
             p[0] = FunctionDeclareNode(return_list=p[1], name=p[3])
 
@@ -466,7 +468,7 @@ C = A * B
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data4, debug_level=False)
+    ast = parser.parse(text=data7, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)

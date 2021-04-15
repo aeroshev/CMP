@@ -1,7 +1,7 @@
-from typing import Any, List, Optional, TextIO, Tuple, Iterator, Union
+from typing import Any, Iterator, List, Optional, TextIO, Tuple, Union
 
 from cmp.ast import *
-from cmp.helpers import camel_to_snake, BadInputError
+from cmp.helpers import BadInputError, camel_to_snake
 
 
 class Visitor:
@@ -36,7 +36,7 @@ class Visitor:
         else:
             return res_str
 
-    def _visit(self, node: Union[Node, List[Node]]) -> Any:
+    def _visit(self, node: Union[Node, List[Node], List[str]]) -> Any:
         method = '_visit_' + camel_to_snake(node.__class__.__name__)
         self.depth += 1
         res = getattr(self, method)(node)
@@ -80,7 +80,7 @@ class Visitor:
 
     @staticmethod
     def _split_by_chunks(big_list: List[Node]) -> Iterator[List[Node]]:
-        chunk = []
+        chunk = []  # type: List[Node]
         for elem in big_list:
             if elem == ';':
                 yield chunk

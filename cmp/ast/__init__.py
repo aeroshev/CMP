@@ -5,7 +5,7 @@ from .conditional_statement import SimpleConditionalNode, TwoBranchConditionalNo
 from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
-from .finite_unit import SimpleNode, IdentifierNode, ConstantNode
+from .finite_unit import ConstantNode, IdentifierNode, SimpleNode
 from .function import FunctionDeclareNode, FunctionNameNode, FunctionNode
 from .iterations import ForLoopNode
 from .jump_stmt import BreakNode, ReturnNode
