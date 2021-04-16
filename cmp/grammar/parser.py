@@ -131,7 +131,7 @@ class Parser(LogMixin):
                            | array_expression
                            | postfix_expression TRANSPOSE
         """
-        p[0] = p[1] if len(p) == 2 else ...  # TODO
+        p[0] = p[1] if len(p) == 2 else TransposeNode(expr=p[1])
 
     def p_index_expression(self, p: YaccProduction) -> None:
         """
@@ -145,7 +145,7 @@ class Parser(LogMixin):
         index_expression_list : index_expression
                               | index_expression_list ',' index_expression
         """
-        p[0] = p[1] if len(p) == 2 else p[1] + p[3]
+        p[0] = p[1] if len(p) == 2 else self._save_merge(left=p[1], right=p[3])
 
     def p_array_expression(self, p: YaccProduction) -> None:
         """
@@ -475,9 +475,20 @@ while n > 1
 end
 '''
 
+data9 = '''
+n = -12
+m = 34
+
+if (n & m)
+    m = m - n
+    ar = [1 2 3; 4 5 6; 7 8 9]
+    ar = ar.'
+end
+'''
+
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data8, debug_level=False)
+    ast = parser.parse(text=data9, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)
