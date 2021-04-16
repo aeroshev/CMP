@@ -20,7 +20,8 @@ PYTHON_OUTPUT = './python_output/'
     (os.path.join(MATLAB_SAMPLES, 'sample_5.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_5.py')),
     (os.path.join(MATLAB_SAMPLES, 'sample_6.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_6.py')),
     (os.path.join(MATLAB_SAMPLES, 'sample_7.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_7.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_8.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_8.py'))
+    (os.path.join(MATLAB_SAMPLES, 'sample_8.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_8.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_9.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_9.py'))
 ])
 def sample(request: SubRequest) -> Iterator[Tuple[str, str]]:
     with open(request.param[0], "r") as matlab_file, open(request.param[1], "r") as python_file:

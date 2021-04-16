@@ -29,6 +29,7 @@ from .relational import (
 from .root import FileAST
 from .sparse import SparseNode
 from .unary_expression import UnaryExpressionNode
+from .transpose import TransposeNode
 
 __all__ = (
     "AssignmentNode",
@@ -69,5 +70,6 @@ __all__ = (
     "UnaryExpressionNode",
     "IdentifierNode",
     "ConstantNode",
-    "WhileLoopNode"
+    "WhileLoopNode",
+    "TransposeNode"
 )

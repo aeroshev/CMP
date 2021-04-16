@@ -11,6 +11,7 @@ class Visitor:
     """
     def __init__(self, filename: str = None) -> None:
         self.depth = 0  # type: int
+        self.stack = []  # type: List[Any]
         if filename:
             self._output = open(filename, "w", encoding="utf-8")  # type: TextIO
 
@@ -22,7 +23,7 @@ class Visitor:
         if root is None:
             raise BadInputError('Root of AST is None')
 
-        res_str = 'import numpy as np\n\n\n'
+        res_str = 'import numpy as np' + '\n\n\n'
         for node in root:
             res_str += self._visit(node)
 
@@ -106,7 +107,7 @@ class Visitor:
     def _visit_array_node(self, node: ArrayNode) -> str:
         raise NotImplementedError
 
-    # Assigment group
+    # Assignment group
     def _visit_assignment_node(self, node: AssignmentNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
@@ -158,7 +159,9 @@ class Visitor:
         return f'{lhs} == {rhs}'
 
     def _visit_negative_equality_node(self, node: NegativeEqualityNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} != {rhs}'
 
     # Finite unit group
     def _visit_simple_node(self, node: SimpleNode) -> str:
@@ -173,13 +176,17 @@ class Visitor:
     # Function group
     def _visit_function_node(self, node: FunctionNode) -> str:
         declare, return_list = self._visit(node.declare)
+        self.stack.append([return_list])
         body = self._visit(node.body)
+
         body_str = ''
         for instruction in body:
             body_str += self.tabulate_expr(instruction)
         return_str = self.tabulate_expr('return ')
         return_str += ', '.join(return_list)
         func_str = f'def {declare}:\n' + body_str + return_str
+
+        self.stack.pop()
         return func_str
 
     def _visit_function_declare_node(self, node: FunctionDeclareNode) -> Tuple[str, Optional[List[str]]]:
@@ -219,14 +226,23 @@ class Visitor:
         return 'break'
 
     def _visit_return_node(self, node: ReturnNode) -> str:
-        raise NotImplementedError
+        if len(self.stack) > 0:
+            return_list = self.stack[-1]
+            return_str = self.tabulate_expr('return ')
+            return_str += ', '.join(return_list)
+            return return_str
+        return self.tabulate_expr('return')
 
     # Logic group
     def _visit_and_node(self, node: AndNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} and {rhs}'
 
     def _visit_or_node(self, node: OrNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} or {rhs}'
 
     # Multiplicative group
     def _visit_multiply_node(self, node: MultiplyNode) -> str:
@@ -235,10 +251,14 @@ class Visitor:
         return f'{lhs} * {rhs}'
 
     def _visit_divide_node(self, node: DivideNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} / {rhs}'
 
     def _visit_power_node(self, node: PowerNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} ** {rhs}'
 
     def _visit_array_mul_node(self, node: ArrayMulNode) -> str:
         raise NotImplementedError
@@ -259,19 +279,30 @@ class Visitor:
         return f'{lhs} > {rhs}'
 
     def _visit_greater_equal_relational_node(self, node: GreaterEqualRelationalNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} >= {rhs}'
 
     def _visit_lower_relational_node(self, node: LowerRelationalNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} < {rhs}'
 
     def _visit_lower_equal_relational_node(self, node: LowerEqualRelationalNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} <= {rhs}'
 
     # Sparse group
     def _visit_sparse_node(self, node: SparseNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
         return f'range({lhs}, {rhs})'
+
+    # Transpose group
+    def _visit_transpose_node(self, node: TransposeNode) -> str:
+        expr = self._visit(node.expr)
+        return f'np.transpose({expr})'
 
     # Unary expression group
     def _visit_unary_expression_node(self, node: UnaryExpressionNode) -> str:

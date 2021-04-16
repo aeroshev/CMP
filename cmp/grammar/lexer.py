@@ -60,6 +60,7 @@ class Lexer(LogMixin):
 
     transpose_1 = r"'"
     transpose_2 = r"\.'"
+    transpose = transpose_1 + r'|' + transpose_2
 
     identifier = fr'{L}({L}|{D})*'
 
@@ -99,7 +100,7 @@ class Lexer(LogMixin):
         r"""'[^'\n]*'"""
         return token_
 
-    @TOKEN(transpose_1 + transpose_2)
+    @TOKEN(transpose)
     def t_TRANSPOSE(self, token_: LexToken) -> LexToken:
         """"""
         return token_
@@ -132,10 +133,21 @@ d = 'string'
 % Just a comment
 '''
 
+data2 = '''
+n = -12
+m = 34
+
+if (n & m)
+    m = m - n
+    ar = [1 2 3; 4 5 6; 7 8 9]
+    ar = ar.'
+end
+'''
+
 
 if __name__ == '__main__':
     m = Lexer()
-    m.input(data)
+    m.input(data2)
     token = 'not none'
     while token:
         token = m.token()
