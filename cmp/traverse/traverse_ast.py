@@ -22,7 +22,7 @@ class Visitor:
     def python_tabulate(self) -> str:
         return ' ' * 4 * self.depth
 
-    def tabulate_expr(self, expr: Any) -> str:
+    def tabulate_expr(self, expr: str) -> str:
         if expr == '\n':
             return expr
         return f'{self.python_tabulate}{expr}'
@@ -97,7 +97,7 @@ class Visitor:
         yield chunk
 
     def _visit_array_vector_node(self, node: ArrayVectorNode) -> str:
-        list_elems = []
+        list_elems = []  # type: List[List[str]]
         for shape, chunk in enumerate(self._split_by_chunks(node.content)):
             list_elems.append([])
             for elem in chunk:
@@ -129,6 +129,14 @@ class Visitor:
         for instruction in body:
             body_str += self.tabulate_expr(instruction)
         return f'for {iterator} in {expression}:' + body_str
+
+    def _visit_while_loop_node(self, node: WhileLoopNode) -> str:
+        expression = self._visit(node.express)
+        body = self._visit(node.body)
+        body_str = ''
+        for instruction in body:
+            body_str += self.tabulate_expr(instruction)
+        return f'while {expression}:' + body_str
 
     def _visit_sparse_node(self, node: SparseNode) -> str:
         lhs = self._visit(node.lhs)
@@ -193,3 +201,13 @@ class Visitor:
 
     def _visit_constant_node(self, node: ConstantNode) -> str:
         return node.const
+
+    def _visit_greater_relational_node(self, node: GreaterRelationalNode) -> str:
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} > {rhs}'
+
+    def _visit_minus_node(self, node: MinusNode) -> str:
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} - {rhs}'
