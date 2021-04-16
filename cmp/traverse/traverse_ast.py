@@ -22,6 +22,11 @@ class Visitor:
     def python_tabulate(self) -> str:
         return ' ' * 4 * self.depth
 
+    def tabulate_expr(self, expr: Any) -> str:
+        if expr == '\n':
+            return expr
+        return f'{self.python_tabulate}{expr}'
+
     def traverse_ast(self, root: FileAST) -> Optional[str]:
         if root is None:
             raise BadInputError('Root of AST is None')
@@ -58,16 +63,10 @@ class Visitor:
         main_stmt = self._visit(node.main_stmt)
         main_branch = ''
         for elem in self._visit(node.main_branch):
-            if elem == '\n':
-                main_branch += elem
-                continue
-            main_branch += f'{self.python_tabulate}{elem}'
+            main_branch += self.tabulate_expr(elem)
         alt_branch = ''
         for elem in self._visit(node.alt_branch):
-            if elem == '\n':
-                alt_branch += elem
-                continue
-            alt_branch += f'{self.python_tabulate}{elem}'
+            alt_branch += self.tabulate_expr(elem)
         output_str = (
             f'if {main_stmt}:'
             f'{main_branch}'
@@ -128,10 +127,7 @@ class Visitor:
         body = self._visit(node.body)
         body_str = ''
         for instruction in body:
-            if instruction == '\n':
-                body_str += '\n'
-                continue
-            body_str += f'{self.python_tabulate}{instruction}'
+            body_str += self.tabulate_expr(instruction)
         return f'for {iterator} in {expression}:' + body_str
 
     def _visit_sparse_node(self, node: SparseNode) -> str:
@@ -143,10 +139,7 @@ class Visitor:
         main_stmt = self._visit(node.main_stmt)
         main_branch = ''
         for elem in self._visit(node.stmt_list):
-            if elem == '\n':
-                main_branch += elem
-                continue
-            main_branch += f'{self.python_tabulate}{elem}'
+            main_branch += self.tabulate_expr(elem)
         output_str = (
             f'if {main_stmt}:'
             f'{main_branch}'
@@ -161,11 +154,8 @@ class Visitor:
         body = self._visit(node.body)
         body_str = ''
         for instruction in body:
-            if instruction == '\n':
-                body_str += instruction
-                continue
-            body_str += f'{self.python_tabulate}{instruction}'
-        return_str = f'{self.python_tabulate}return '
+            body_str += self.tabulate_expr(instruction)
+        return_str = self.tabulate_expr('return ')
         return_str += ', '.join(return_list)
         func_str = f'def {declare}:\n' + body_str + return_str
         return func_str

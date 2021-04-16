@@ -273,13 +273,13 @@ class Parser(LogMixin):
         """
         global_statement : GLOBAL identifier_list eostmt
         """
-        p[0] = GlobalNode(id_list=p[2])
+        p[0] = [GlobalNode(id_list=p[2]), p[3]]
 
     def p_clear_statement(self, p: YaccProduction) -> None:
         """
         clear_statement : CLEAR identifier_list eostmt
         """
-        p[0] = ClearNode(id_list=p[2])
+        p[0] = [ClearNode(id_list=p[2]), p[3]]
 
     def p_expression_statement(self, p: YaccProduction) -> None:
         """
@@ -316,11 +316,11 @@ class Parser(LogMixin):
                             | IF expression statement_list elseif_clause ELSE statement_list END eostmt
         """
         if len(p) == 9:
-            ...
+            ...  # TODO
         elif len(p) == 8:
             p[0] = TwoBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_branch=p[5])
         elif len(p) == 7:
-            ...
+            ...  # TODO
         elif len(p) == 6:
             p[0] = SimpleConditionalNode(main_stmt=p[2], stmt_list=p[3])
 
