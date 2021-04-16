@@ -1,7 +1,7 @@
-from typing import Any, List, Optional, TextIO, Tuple
+from typing import Any, Iterator, List, Optional, TextIO, Tuple, Union
 
 from cmp.ast import *
-from cmp.helpers import camel_to_snake
+from cmp.helpers import BadInputError, camel_to_snake
 
 
 class Visitor:
@@ -9,28 +9,39 @@ class Visitor:
     Walk through the generated AST and
     translating it to Python code in the specified file
     """
-    def __init__(self, filename: str = 'output.py') -> None:
+    def __init__(self, filename: str = None) -> None:
         self.depth = 0  # type: int
-        self._output = open(filename, "w", encoding="utf-8")  # type: TextIO
+        if filename:
+            self._output = open(filename, "w", encoding="utf-8")  # type: TextIO
 
     def __del__(self) -> None:
-        self._output.close()
+        if hasattr(self, '_output'):
+            self._output.close()
 
     @property
     def python_tabulate(self) -> str:
         return ' ' * 4 * self.depth
 
-    def traverse_ast(self, root: FileAST, use_file: bool = False) -> Optional[str]:
-        res_str = ''
+    def tabulate_expr(self, expr: Any) -> str:
+        if expr == '\n':
+            return expr
+        return f'{self.python_tabulate}{expr}'
+
+    def traverse_ast(self, root: FileAST) -> Optional[str]:
+        if root is None:
+            raise BadInputError('Root of AST is None')
+
+        res_str = 'import numpy as np\n\n\n'
         for node in root:
             res_str += self._visit(node)
-        if use_file:
+
+        if hasattr(self, '_output'):
             self._output.write(res_str)
             return None
         else:
             return res_str
 
-    def _visit(self, node: Node) -> Any:
+    def _visit(self, node: Union[Node, List[Node], List[str]]) -> Any:
         method = '_visit_' + camel_to_snake(node.__class__.__name__)
         self.depth += 1
         res = getattr(self, method)(node)
@@ -38,9 +49,11 @@ class Visitor:
         return res
 
     def _visit_list(self, list_nodes: List[Node]) -> List[str]:
+        self.depth -= 1
         res = []
         for node in list_nodes:
             res.append(self._visit(node))
+        self.depth += 1
         return res
 
     def _visit_two_branch_conditional_node(
@@ -49,15 +62,15 @@ class Visitor:
     ) -> str:
         main_stmt = self._visit(node.main_stmt)
         main_branch = ''
-        for elem in self._visit_list(node.main_branch):
-            main_branch += f'{self.python_tabulate}{elem}'
+        for elem in self._visit(node.main_branch):
+            main_branch += self.tabulate_expr(elem)
         alt_branch = ''
-        for elem in self._visit_list(node.alt_branch):
-            alt_branch += f'{self.python_tabulate}{elem}'
+        for elem in self._visit(node.alt_branch):
+            alt_branch += self.tabulate_expr(elem)
         output_str = (
-            f'if {main_stmt}:\n'
+            f'if {main_stmt}:'
             f'{main_branch}'
-            f'else:\n'
+            f'else:'
             f'{alt_branch}'
         )
         return output_str
@@ -65,16 +78,38 @@ class Visitor:
     def _visit_assignment_node(self, node: AssignmentNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
-        return f'{lhs} = {rhs}\n'   # ???
+        return f'{lhs} = {rhs}'
 
     def _visit_simple_node(self, node: SimpleNode) -> str:
         return node.content
 
+    @staticmethod
+    def _split_by_chunks(big_list: List[Node]) -> Iterator[List[Node]]:
+        chunk = []  # type: List[Node]
+        for elem in big_list:
+            if elem == ';':
+                yield chunk
+                chunk = []
+                continue
+            if elem == ',':
+                continue
+            chunk.append(elem)
+        yield chunk
+
     def _visit_array_vector_node(self, node: ArrayVectorNode) -> str:
-        res = []
-        for elem in node.content:
-            res.append(self._visit(elem))
-        return '[' + ', '.join(res) + ']'
+        list_elems = []
+        for shape, chunk in enumerate(self._split_by_chunks(node.content)):
+            list_elems.append([])
+            for elem in chunk:
+                list_elems[shape].append(self._visit(elem))
+
+        res = ''
+        rows_str_list = []
+        for row in list_elems:
+            rows_str_list.append('[' + ', '.join(row) + ']')
+        res += '[' + ', '.join(rows_str_list) + ']'
+
+        return f'np.array({res})'
 
     def _visit_multiply_node(self, node: MultiplyNode) -> str:
         lhs = self._visit(node.lhs)
@@ -89,11 +124,11 @@ class Visitor:
     def _visit_for_loop_node(self, node: ForLoopNode) -> str:
         iterator = node.iter
         expression = self._visit(node.express)
-        body = self._visit_list(node.body)
+        body = self._visit(node.body)
         body_str = ''
         for instruction in body:
-            body_str += f'{self.python_tabulate}{instruction}'
-        return f'for {iterator} in {expression}:\n' + body_str
+            body_str += self.tabulate_expr(instruction)
+        return f'for {iterator} in {expression}:' + body_str
 
     def _visit_sparse_node(self, node: SparseNode) -> str:
         lhs = self._visit(node.lhs)
@@ -103,31 +138,31 @@ class Visitor:
     def _visit_simple_conditional_node(self, node: SimpleConditionalNode) -> str:
         main_stmt = self._visit(node.main_stmt)
         main_branch = ''
-        for elem in self._visit_list(node.stmt_list):
-            main_branch += f'{self.python_tabulate}{elem}'
+        for elem in self._visit(node.stmt_list):
+            main_branch += self.tabulate_expr(elem)
         output_str = (
-            f'if {main_stmt}:\n'
+            f'if {main_stmt}:'
             f'{main_branch}'
         )
         return output_str
 
     def _visit_break_node(self, node: BreakNode) -> str:
-        return 'break\n'
+        return 'break'
 
     def _visit_function_node(self, node: FunctionNode) -> str:
         declare, return_list = self._visit(node.declare)
-        body = self._visit_list(node.body)
+        body = self._visit(node.body)
         body_str = ''
         for instruction in body:
-            body_str += f'{self.python_tabulate}{instruction}'
-        return_str = f'{self.python_tabulate}return '
+            body_str += self.tabulate_expr(instruction)
+        return_str = self.tabulate_expr('return ')
         return_str += ', '.join(return_list)
         func_str = f'def {declare}:\n' + body_str + return_str
         return func_str
 
     def _visit_function_declare_node(self, node: FunctionDeclareNode) -> Tuple[str, Optional[List[str]]]:
         name = self._visit(node.name)
-        return_list = self._visit_list(node.return_list)
+        return_list = self._visit(node.return_list)
         return_list_str = []
         for elem in return_list:
             return_list_str.append(elem)
@@ -135,14 +170,26 @@ class Visitor:
 
     def _visit_function_name_node(self, node: FunctionNameNode) -> str:
         name = self._visit(node.name)
-        input_list = self._visit_list(node.input_list)
+        input_list = self._visit(node.input_list)
         input_str = ', '.join(input_list)
         return f'{name}({input_str})'
 
-    def _visit_str(self, string: str) -> str:
+    @staticmethod
+    def _visit_str(string: str) -> str:
+        if string == ';':
+            return ''
         return string
 
     def _visit_plus_node(self, node: PlusNode) -> str:  # TODO add pattern
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
         return f'{lhs} + {rhs}'
+
+    def _visit_unary_expression_node(self, node: UnaryExpressionNode) -> str:
+        return f'{node.unary_op}{self._visit(node.expr)}'
+
+    def _visit_identifier_node(self, node: IdentifierNode) -> str:
+        return node.ident
+
+    def _visit_constant_node(self, node: ConstantNode) -> str:
+        return node.const

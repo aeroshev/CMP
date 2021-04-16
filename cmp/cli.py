@@ -1,10 +1,9 @@
 import os
-from argparse import ArgumentParser
-
-from pkg_resources import require as pkg_require
+from argparse import ArgumentParser, Namespace
+from typing import Optional
 
 from cmp.grammar import Parser
-from cmp.helpers import LogMixin, Singleton
+from cmp.helpers import BadInputError, LogMixin, Singleton
 from cmp.traverse import Visitor
 
 
@@ -15,12 +14,18 @@ class Command(ArgumentParser, LogMixin, Singleton):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         self.description = 'Empty description'
-        self.add_argument(
+        self.command_group = self.add_mutually_exclusive_group(required=True)
+        self.command_group.add_argument(
             '-p',
             '--path',
-            required=True,
             type=str,
             help='path to file'
+        )
+        self.command_group.add_argument(
+            '-s',
+            '--string',
+            type=str,
+            help='input data from console'
         )
         self.add_argument(
             '-of',
@@ -33,29 +38,37 @@ class Command(ArgumentParser, LogMixin, Singleton):
             '-v',
             '--version',
             action='version',
-            version=f'Pycmp {pkg_require("pycmp")[0].version}'
+            version='Pycmp: 1.0.0'
         )
 
     def execute(self) -> None:
         args = self.parse_args()
-
-        if not self._validate_file(args.path):
-            self.logger.error("Incorrect path to file")
-            return None
-
         parser = self._get_parser()
+        text = self._get_text(args)
 
-        ast = parser.parse(text=self._get_text_file(args.path), debug_level=False)
+        if text:
+            ast = parser.parse(text=self._get_text(args), debug_level=False)
+        else:
+            self.logger.error('Incorrect input data')
+            return None
 
         if args.output_file:
             if not self._validate_file(args.output_file):
-                self.logger.error("Incorrect path to file")
+                self.logger.error("Incorrect output path to file")
                 return None
-            visitor = self._get_visitor(filename=args.output_file)
-        else:
-            visitor = self._get_visitor(filename='')
 
-        visitor.traverse_ast(root=ast, use_file=True)
+        visitor = self._get_visitor(filename=args.output_file)
+
+        output = None
+        try:
+            output = visitor.traverse_ast(root=ast)
+        except BadInputError as err:
+            # self.logger.error(err)
+            print(err)
+
+        if output:
+            # self.logger.info(output)
+            print(output)
 
     @staticmethod
     def _validate_file(path: str) -> bool:
@@ -72,8 +85,13 @@ class Command(ArgumentParser, LogMixin, Singleton):
         else:
             return Visitor()
 
-    @staticmethod
-    def _get_text_file(path: str) -> str:
-        with open(path, "r") as file:
-            content = file.read()
-        return content
+    def _get_text(self, args: Namespace) -> Optional[str]:
+        if args.string:
+            return str(args.string)
+        else:
+            if not self._validate_file(args.path):
+                self.logger.error('Incorrect path file')
+                return None
+            with open(args.path, "r") as file:
+                content = file.read()
+            return content
