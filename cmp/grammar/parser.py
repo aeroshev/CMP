@@ -337,7 +337,7 @@ class Parser(LogMixin):
                             | FOR '(' IDENTIFIER '=' expression ')' statement_list END eostmt
         """
         if len(p) == 6:
-            ...
+            p[0] = WhileLoopNode(express=p[2], body=p[3])
         else:
             if len(p) == 8:
                 p[0] = ForLoopNode(iterator=p[2], express=p[4], body=p[5])
@@ -466,9 +466,18 @@ B = [-5 8 11; 3 9 21; 4 0 8];
 C = A * B
 '''
 
+data8 = '''
+n = 10
+f = n
+while n > 1
+    n = n - 1
+    f = f * n
+end
+'''
+
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data5, debug_level=False)
+    ast = parser.parse(text=data8, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)

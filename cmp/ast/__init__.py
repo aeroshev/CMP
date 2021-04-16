@@ -7,7 +7,7 @@ from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
 from .finite_unit import ConstantNode, IdentifierNode, SimpleNode
 from .function import FunctionDeclareNode, FunctionNameNode, FunctionNode
-from .iterations import ForLoopNode
+from .iterations import ForLoopNode, WhileLoopNode
 from .jump_stmt import BreakNode, ReturnNode
 from .logic import AndNode, OrNode
 from .multiplicative import (
@@ -68,5 +68,6 @@ __all__ = (
     "FunctionNameNode",
     "UnaryExpressionNode",
     "IdentifierNode",
-    "ConstantNode"
+    "ConstantNode",
+    "WhileLoopNode"
 )

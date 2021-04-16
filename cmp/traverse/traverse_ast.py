@@ -130,6 +130,14 @@ class Visitor:
             body_str += self.tabulate_expr(instruction)
         return f'for {iterator} in {expression}:' + body_str
 
+    def _visit_while_loop_node(self, node: WhileLoopNode) -> str:
+        expression = self._visit(node.express)
+        body = self._visit(node.body)
+        body_str = ''
+        for instruction in body:
+            body_str += self.tabulate_expr(instruction)
+        return f'while {expression}:' + body_str
+
     def _visit_sparse_node(self, node: SparseNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
@@ -193,3 +201,13 @@ class Visitor:
 
     def _visit_constant_node(self, node: ConstantNode) -> str:
         return node.const
+
+    def _visit_greater_relational_node(self, node: GreaterRelationalNode) -> str:
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} > {rhs}'
+
+    def _visit_minus_node(self, node: MinusNode) -> str:
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} - {rhs}'
