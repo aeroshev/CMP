@@ -22,7 +22,7 @@ class Visitor:
     def python_tabulate(self) -> str:
         return ' ' * 4 * self.depth
 
-    def tabulate_expr(self, expr: Any) -> str:
+    def tabulate_expr(self, expr: str) -> str:
         if expr == '\n':
             return expr
         return f'{self.python_tabulate}{expr}'
@@ -97,7 +97,7 @@ class Visitor:
         yield chunk
 
     def _visit_array_vector_node(self, node: ArrayVectorNode) -> str:
-        list_elems = []
+        list_elems = []  # type: List[List[str]]
         for shape, chunk in enumerate(self._split_by_chunks(node.content)):
             list_elems.append([])
             for elem in chunk:
