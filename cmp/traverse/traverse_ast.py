@@ -18,15 +18,6 @@ class Visitor:
         if hasattr(self, '_output'):
             self._output.close()
 
-    @property
-    def python_tabulate(self) -> str:
-        return ' ' * 4 * self.depth
-
-    def tabulate_expr(self, expr: str) -> str:
-        if expr == '\n':
-            return expr
-        return f'{self.python_tabulate}{expr}'
-
     def traverse_ast(self, root: FileAST) -> Optional[str]:
         if root is None:
             raise BadInputError('Root of AST is None')
@@ -48,6 +39,35 @@ class Visitor:
         self.depth -= 1
         return res
 
+    @property
+    def python_tabulate(self) -> str:
+        return ' ' * 4 * self.depth
+
+    def tabulate_expr(self, expr: str) -> str:
+        if expr == '\n':
+            return expr
+        return f'{self.python_tabulate}{expr}'
+
+    @staticmethod
+    def _split_by_chunks(big_list: List[Node]) -> Iterator[List[Node]]:
+        chunk = []  # type: List[Node]
+        for elem in big_list:
+            if elem == ';':
+                yield chunk
+                chunk = []
+                continue
+            if elem == ',':
+                continue
+            chunk.append(elem)
+        yield chunk
+
+    # Built-in Python types
+    @staticmethod
+    def _visit_str(string: str) -> str:
+        if string == ';':
+            return ''
+        return string
+
     def _visit_list(self, list_nodes: List[Node]) -> List[str]:
         self.depth -= 1
         res = []
@@ -55,6 +75,54 @@ class Visitor:
             res.append(self._visit(node))
         self.depth += 1
         return res
+
+    # Additive group
+    def _visit_plus_node(self, node: PlusNode) -> str:  # TODO add pattern
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} + {rhs}'
+
+    def _visit_minus_node(self, node: MinusNode) -> str:
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} - {rhs}'
+
+    # Array group
+    def _visit_array_vector_node(self, node: ArrayVectorNode) -> str:
+        list_elems = []  # type: List[List[str]]
+        for shape, chunk in enumerate(self._split_by_chunks(node.content)):
+            list_elems.append([])
+            for elem in chunk:
+                list_elems[shape].append(self._visit(elem))
+
+        res = ''
+        rows_str_list = []
+        for row in list_elems:
+            rows_str_list.append('[' + ', '.join(row) + ']')
+        res += '[' + ', '.join(rows_str_list) + ']'
+
+        return f'np.array({res})'
+
+    def _visit_array_node(self, node: ArrayNode) -> str:
+        raise NotImplementedError
+
+    # Assigment group
+    def _visit_assignment_node(self, node: AssignmentNode) -> str:
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'{lhs} = {rhs}'
+
+    # Conditional statement group
+    def _visit_simple_conditional_node(self, node: SimpleConditionalNode) -> str:
+        main_stmt = self._visit(node.main_stmt)
+        main_branch = ''
+        for elem in self._visit(node.stmt_list):
+            main_branch += self.tabulate_expr(elem)
+        output_str = (
+            f'if {main_stmt}:'
+            f'{main_branch}'
+        )
+        return output_str
 
     def _visit_two_branch_conditional_node(
             self,
@@ -75,88 +143,34 @@ class Visitor:
         )
         return output_str
 
-    def _visit_assignment_node(self, node: AssignmentNode) -> str:
-        lhs = self._visit(node.lhs)
-        rhs = self._visit(node.rhs)
-        return f'{lhs} = {rhs}'
+    # Define clear group
+    def _visit_clear_node(self, node: ClearNode) -> str:
+        raise NotImplementedError
 
-    def _visit_simple_node(self, node: SimpleNode) -> str:
-        return node.content
+    # Define global group
+    def _visit_global_node(self, node: GlobalNode) -> str:
+        raise NotImplementedError
 
-    @staticmethod
-    def _split_by_chunks(big_list: List[Node]) -> Iterator[List[Node]]:
-        chunk = []  # type: List[Node]
-        for elem in big_list:
-            if elem == ';':
-                yield chunk
-                chunk = []
-                continue
-            if elem == ',':
-                continue
-            chunk.append(elem)
-        yield chunk
-
-    def _visit_array_vector_node(self, node: ArrayVectorNode) -> str:
-        list_elems = []  # type: List[List[str]]
-        for shape, chunk in enumerate(self._split_by_chunks(node.content)):
-            list_elems.append([])
-            for elem in chunk:
-                list_elems[shape].append(self._visit(elem))
-
-        res = ''
-        rows_str_list = []
-        for row in list_elems:
-            rows_str_list.append('[' + ', '.join(row) + ']')
-        res += '[' + ', '.join(rows_str_list) + ']'
-
-        return f'np.array({res})'
-
-    def _visit_multiply_node(self, node: MultiplyNode) -> str:
-        lhs = self._visit(node.lhs)
-        rhs = self._visit(node.rhs)
-        return f'{lhs} * {rhs}'
-
+    # Equality group
     def _visit_positive_equality_node(self, node: PositiveEqualityNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
         return f'{lhs} == {rhs}'
 
-    def _visit_for_loop_node(self, node: ForLoopNode) -> str:
-        iterator = node.iter
-        expression = self._visit(node.express)
-        body = self._visit(node.body)
-        body_str = ''
-        for instruction in body:
-            body_str += self.tabulate_expr(instruction)
-        return f'for {iterator} in {expression}:' + body_str
+    def _visit_negative_equality_node(self, node: NegativeEqualityNode) -> str:
+        raise NotImplementedError
 
-    def _visit_while_loop_node(self, node: WhileLoopNode) -> str:
-        expression = self._visit(node.express)
-        body = self._visit(node.body)
-        body_str = ''
-        for instruction in body:
-            body_str += self.tabulate_expr(instruction)
-        return f'while {expression}:' + body_str
+    # Finite unit group
+    def _visit_simple_node(self, node: SimpleNode) -> str:
+        return node.content
 
-    def _visit_sparse_node(self, node: SparseNode) -> str:
-        lhs = self._visit(node.lhs)
-        rhs = self._visit(node.rhs)
-        return f'range({lhs}, {rhs})'
+    def _visit_identifier_node(self, node: IdentifierNode) -> str:
+        return node.ident
 
-    def _visit_simple_conditional_node(self, node: SimpleConditionalNode) -> str:
-        main_stmt = self._visit(node.main_stmt)
-        main_branch = ''
-        for elem in self._visit(node.stmt_list):
-            main_branch += self.tabulate_expr(elem)
-        output_str = (
-            f'if {main_stmt}:'
-            f'{main_branch}'
-        )
-        return output_str
+    def _visit_constant_node(self, node: ConstantNode) -> str:
+        return node.const
 
-    def _visit_break_node(self, node: BreakNode) -> str:
-        return 'break'
-
+    # Function group
     def _visit_function_node(self, node: FunctionNode) -> str:
         declare, return_list = self._visit(node.declare)
         body = self._visit(node.body)
@@ -182,32 +196,83 @@ class Visitor:
         input_str = ', '.join(input_list)
         return f'{name}({input_str})'
 
-    @staticmethod
-    def _visit_str(string: str) -> str:
-        if string == ';':
-            return ''
-        return string
+    # Iteration group
+    def _visit_for_loop_node(self, node: ForLoopNode) -> str:
+        iterator = node.iter
+        expression = self._visit(node.express)
+        body = self._visit(node.body)
+        body_str = ''
+        for instruction in body:
+            body_str += self.tabulate_expr(instruction)
+        return f'for {iterator} in {expression}:' + body_str
 
-    def _visit_plus_node(self, node: PlusNode) -> str:  # TODO add pattern
+    def _visit_while_loop_node(self, node: WhileLoopNode) -> str:
+        expression = self._visit(node.express)
+        body = self._visit(node.body)
+        body_str = ''
+        for instruction in body:
+            body_str += self.tabulate_expr(instruction)
+        return f'while {expression}:' + body_str
+
+    # Jump statement group
+    def _visit_break_node(self, node: BreakNode) -> str:
+        return 'break'
+
+    def _visit_return_node(self, node: ReturnNode) -> str:
+        raise NotImplementedError
+
+    # Logic group
+    def _visit_and_node(self, node: AndNode) -> str:
+        raise NotImplementedError
+
+    def _visit_or_node(self, node: OrNode) -> str:
+        raise NotImplementedError
+
+    # Multiplicative group
+    def _visit_multiply_node(self, node: MultiplyNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
-        return f'{lhs} + {rhs}'
+        return f'{lhs} * {rhs}'
 
-    def _visit_unary_expression_node(self, node: UnaryExpressionNode) -> str:
-        return f'{node.unary_op}{self._visit(node.expr)}'
+    def _visit_divide_node(self, node: DivideNode) -> str:
+        raise NotImplementedError
 
-    def _visit_identifier_node(self, node: IdentifierNode) -> str:
-        return node.ident
+    def _visit_power_node(self, node: PowerNode) -> str:
+        raise NotImplementedError
 
-    def _visit_constant_node(self, node: ConstantNode) -> str:
-        return node.const
+    def _visit_array_mul_node(self, node: ArrayMulNode) -> str:
+        raise NotImplementedError
 
+    def _visit_array_div_node(self, node: ArrayDivNode) -> str:
+        raise NotImplementedError
+
+    def _visit_array_r_div_node(self, node: ArrayRDivNode) -> str:
+        raise NotImplementedError
+
+    def _visit_array_power_node(self, node: ArrayPowerNode) -> str:
+        raise NotImplementedError
+
+    # Relational group
     def _visit_greater_relational_node(self, node: GreaterRelationalNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
         return f'{lhs} > {rhs}'
 
-    def _visit_minus_node(self, node: MinusNode) -> str:
+    def _visit_greater_equal_relational_node(self, node: GreaterEqualRelationalNode) -> str:
+        raise NotImplementedError
+
+    def _visit_lower_relational_node(self, node: LowerRelationalNode) -> str:
+        raise NotImplementedError
+
+    def _visit_lower_equal_relational_node(self, node: LowerEqualRelationalNode) -> str:
+        raise NotImplementedError
+
+    # Sparse group
+    def _visit_sparse_node(self, node: SparseNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
-        return f'{lhs} - {rhs}'
+        return f'range({lhs}, {rhs})'
+
+    # Unary expression group
+    def _visit_unary_expression_node(self, node: UnaryExpressionNode) -> str:
+        return f'{node.unary_op}{self._visit(node.expr)}'
