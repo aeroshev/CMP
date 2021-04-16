@@ -350,9 +350,9 @@ class Parser(LogMixin):
                        | RETURN eostmt
         """
         if p[1] == 'break':
-            p[0] = BreakNode()
+            p[0] = [BreakNode(), p[2]]
         elif p[1] == 'return':
-            p[0] = ReturnNode()
+            p[0] = [ReturnNode(), p[2]]
 
     def p_translation_unit(self, p: YaccProduction) -> None:
         """
@@ -468,7 +468,7 @@ C = A * B
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data7, debug_level=False)
+    ast = parser.parse(text=data5, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)

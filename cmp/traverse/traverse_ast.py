@@ -26,7 +26,7 @@ class Visitor:
         if root is None:
             raise BadInputError('Root of AST is None')
 
-        res_str = 'import numpy as np' + '\n\n'
+        res_str = 'import numpy as np\n\n\n'
         for node in root:
             res_str += self._visit(node)
 
@@ -58,9 +58,15 @@ class Visitor:
         main_stmt = self._visit(node.main_stmt)
         main_branch = ''
         for elem in self._visit(node.main_branch):
+            if elem == '\n':
+                main_branch += elem
+                continue
             main_branch += f'{self.python_tabulate}{elem}'
         alt_branch = ''
         for elem in self._visit(node.alt_branch):
+            if elem == '\n':
+                alt_branch += elem
+                continue
             alt_branch += f'{self.python_tabulate}{elem}'
         output_str = (
             f'if {main_stmt}:'
@@ -92,15 +98,17 @@ class Visitor:
         yield chunk
 
     def _visit_array_vector_node(self, node: ArrayVectorNode) -> str:
-        res = ''
         list_elems = []
-        res += '['
         for shape, chunk in enumerate(self._split_by_chunks(node.content)):
+            list_elems.append([])
             for elem in chunk:
-                list_elems.append(self._visit(elem))
-            res += '[' + ', '.join(list_elems) + ']'
-            list_elems = []
-        res += ']'
+                list_elems[shape].append(self._visit(elem))
+
+        res = ''
+        rows_str_list = []
+        for row in list_elems:
+            rows_str_list.append('[' + ', '.join(row) + ']')
+        res += '[' + ', '.join(rows_str_list) + ']'
 
         return f'np.array({res})'
 
@@ -120,6 +128,9 @@ class Visitor:
         body = self._visit(node.body)
         body_str = ''
         for instruction in body:
+            if instruction == '\n':
+                body_str += '\n'
+                continue
             body_str += f'{self.python_tabulate}{instruction}'
         return f'for {iterator} in {expression}:' + body_str
 
@@ -132,6 +143,9 @@ class Visitor:
         main_stmt = self._visit(node.main_stmt)
         main_branch = ''
         for elem in self._visit(node.stmt_list):
+            if elem == '\n':
+                main_branch += elem
+                continue
             main_branch += f'{self.python_tabulate}{elem}'
         output_str = (
             f'if {main_stmt}:'
@@ -147,6 +161,9 @@ class Visitor:
         body = self._visit(node.body)
         body_str = ''
         for instruction in body:
+            if instruction == '\n':
+                body_str += instruction
+                continue
             body_str += f'{self.python_tabulate}{instruction}'
         return_str = f'{self.python_tabulate}return '
         return_str += ', '.join(return_list)

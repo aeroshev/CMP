@@ -1,3 +1,4 @@
 import numpy as np
 
-b = [2 * 2, 3, 5]
+
+b = np.array([[2 * 2, 3, 5]])
