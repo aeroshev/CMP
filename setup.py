@@ -13,7 +13,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requieres=[
-        "ply==3.11"
+        "ply==3.11",
+        "numpy==1.20.2"
     ],
     extra_require={
         "linter_pack": [
