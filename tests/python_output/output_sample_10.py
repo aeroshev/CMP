@@ -12,4 +12,11 @@ def do_something():
         return n, m
     elif n - m > 0:
         n = n - m
+
+    if m + 1 >= 1:
+        s = 'do_something'
+    elif n * 0 > 0:
+        r = np.array([[1, 1, 1, 1]])
+    else:
+        r = 'skip'
     return n, m

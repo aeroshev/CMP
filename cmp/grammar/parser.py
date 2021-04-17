@@ -316,11 +316,11 @@ class Parser(LogMixin):
                             | IF expression statement_list elseif_clause ELSE statement_list END eostmt
         """
         if len(p) == 9:
-            ...  # TODO
+            p[0] = ManyBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_chain=p[4], alt_branch=p[6])
         elif len(p) == 8:
             p[0] = TwoBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_branch=p[5])
         elif len(p) == 7:
-            p[0] = ManyBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_chain=p[4])
+            p[0] = ManyBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_chain=p[4], alt_branch=[])
         elif len(p) == 6:
             p[0] = SimpleConditionalNode(main_stmt=p[2], stmt_list=p[3])
 
@@ -329,7 +329,10 @@ class Parser(LogMixin):
         elseif_clause : ELSEIF expression statement_list
                       | elseif_clause ELSEIF expression statement_list
         """
-        p[0] = ElseIfClauseNode(main_stmt=p[2], stmt_list=p[3]) if len(p) == 4 else [p[1], ElseIfClauseNode(main_stmt=p[3], stmt_list=p[4])]
+        if len(p) == 4:
+            p[0] = [ElseIfClauseNode(main_stmt=p[2], stmt_list=p[3])]
+        else:
+            p[0] = [*p[1], ElseIfClauseNode(main_stmt=p[3], stmt_list=p[4])]
 
     def p_iteration_statement(self, p: YaccProduction) -> None:
         """
@@ -499,6 +502,14 @@ function [n, m] = do_something()
         return
     elseif n - m > 0;
         n = n - m
+    end
+
+    if m + 1 >= 1;
+        s = 'do_something'
+    elseif n * 0 > 0;
+        r = [1 1 1 1]
+    else
+        r = 'skip'
     end
 end
 

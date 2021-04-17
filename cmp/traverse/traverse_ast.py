@@ -42,13 +42,15 @@ class Visitor:
         return res
 
     @property
-    def python_tabulate(self) -> str:
+    def py_tab(self) -> str:
         return ' ' * 4 * self.depth
 
     def tabulate_expr(self, expr: str) -> str:
         if expr == '\n':
             return expr
-        return f'{self.python_tabulate}{expr}'
+        if len(expr) > 0:
+            return f'{self.py_tab}{expr}'
+        return ''
 
     @staticmethod
     def _split_by_chunks(big_list: List[Node]) -> Iterator[List[Node]]:
@@ -70,7 +72,7 @@ class Visitor:
             return ''
         return string
 
-    def _visit_list(self, list_nodes: List[Node]) -> List[str]:
+    def _visit_list(self, list_nodes: List[Node]) -> List[str]:  # TODO
         self.depth -= 1
         res = []
         for node in list_nodes:
@@ -117,9 +119,11 @@ class Visitor:
     # Conditional statement group
     def _visit_simple_conditional_node(self, node: SimpleConditionalNode) -> str:
         main_stmt = self._visit(node.main_stmt)
+
         main_branch = ''
         for elem in self._visit(node.stmt_list):
             main_branch += self.tabulate_expr(elem)
+
         output_str = (
             f'if {main_stmt}:'
             f'{main_branch}'
@@ -131,18 +135,67 @@ class Visitor:
             node: TwoBranchConditionalNode
     ) -> str:
         main_stmt = self._visit(node.main_stmt)
+
         main_branch = ''
         for elem in self._visit(node.main_branch):
             main_branch += self.tabulate_expr(elem)
+
         alt_branch = ''
         for elem in self._visit(node.alt_branch):
             alt_branch += self.tabulate_expr(elem)
+
+        self.depth -= 1
         output_str = (
             f'if {main_stmt}:'
             f'{main_branch}'
-            f'else:'
+            f'{self.py_tab}else:'
             f'{alt_branch}'
         )
+        self.depth += 1
+        return output_str
+
+    def _visit_else_if_clause_node(self, node: ElseIfClauseNode) -> str:
+        main_stmt = self._visit(node.main_stmt)
+
+        main_branch = ''
+        for elem in self._visit(node.stmt_list):
+            main_branch += self.tabulate_expr(elem)
+
+        output_str = (
+            f'elif {main_stmt}:'
+            f'{main_branch}'
+        )
+        return output_str
+
+    def _visit_many_branch_conditional_node(self, node: ManyBranchConditionalNode) -> str:
+        main_stmt = self._visit(node.main_stmt)
+
+        main_branch = ''
+        for elem in self._visit(node.main_branch):
+            main_branch += self.tabulate_expr(elem)
+
+        self.depth -= 1
+        alt_chain = ''
+        for cond in self._visit(node.alt_chain):
+            alt_chain += self.tabulate_expr(cond)
+        self.depth += 1
+
+        alt_branch = ''
+        for elem in self._visit(node.alt_branch):
+            alt_branch += self.tabulate_expr(elem)
+
+        output_str = (
+            f'if {main_stmt}:'
+            f'{main_branch}'
+            f'{alt_chain}'
+        )
+        if len(alt_branch) > 0:
+            self.depth -= 1
+            output_str += (
+                f'{self.py_tab}else:'
+                f'{alt_branch}'
+            )
+            self.depth += 1
         return output_str
 
     # Define clear group
@@ -186,7 +239,7 @@ class Visitor:
     # Function group
     def _visit_function_node(self, node: FunctionNode) -> str:
         declare, return_list = self._visit(node.declare)
-        self.stack.append([return_list])
+        self.stack.append(return_list)
         body = self._visit(node.body)
 
         body_str = ''
@@ -239,8 +292,7 @@ class Visitor:
     def _visit_return_node(self, node: ReturnNode) -> str:
         if len(self.stack) > 0:
             return_list = self.stack[-1]
-            return_str = self.tabulate_expr('return ')
-            return_str += ', '.join(return_list)
+            return_str = 'return ' + ', '.join(return_list)
             return return_str
         return self.tabulate_expr('return')
 
