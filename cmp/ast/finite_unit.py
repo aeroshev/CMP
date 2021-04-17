@@ -13,7 +13,7 @@ class SimpleNode(Node):
 
 
 class IdentifierNode(Node):
-    """"""
+    """Node of identifier"""
     __slots__ = "ident"
 
     def __init__(self, ident: str) -> None:
@@ -21,7 +21,7 @@ class IdentifierNode(Node):
 
 
 class ConstantNode(Node):
-    """"""
+    """Node of constant"""
     __slots__ = "const"
 
     def __init__(self, const: str) -> None:

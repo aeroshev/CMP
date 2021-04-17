@@ -3,7 +3,7 @@ from .node import Node
 
 
 class SparseNode(LhsRhsNode):
-    """Smudge value"""
+    """Node of smudge value"""
     __slots__ = ("lhs", 'rhs')
 
     def __init__(self, lhs: Node, rhs: Node) -> None:

@@ -4,7 +4,7 @@ from .node import Node
 
 
 class ConditionalNode(Node):
-    """"""
+    """Base node for conditional statements"""
     __slots__ = "main_stmt"
 
     def __init__(self, main_stmt: Node) -> None:
@@ -44,8 +44,21 @@ class TwoBranchConditionalNode(ConditionalNode):
         self.main_branch = main_branch
         self.alt_branch = alt_branch
 
-#
-#
-# class ManyBranchConditionalNode(ConditionalNode):
-#     """"""
-#     __slots__ = ("main_statement", "main_branch", "alternative_branch")
+
+class ElseIfClauseNode(ConditionalNode):
+    """Node of elseif clause"""
+    __slots__ = ("main_stmt", "stmt_list")
+
+    def __init__(self, main_stmt: Node, stmt_list: List[Node]) -> None:
+        super().__init__(main_stmt=main_stmt)
+        self.stmt_list = stmt_list
+
+
+class ManyBranchConditionalNode(ConditionalNode):
+    """Node of many conditional statement"""
+    __slots__ = ("main_stmt", "main_branch", "alt_chain")
+
+    def __init__(self, main_stmt: Node, main_branch: List[Node], alt_chain: List[Node]) -> None:
+        super().__init__(main_stmt=main_stmt)
+        self.main_branch = main_branch
+        self.alt_chain = alt_chain

@@ -8,6 +8,7 @@ class Visitor:
     """
     Walk through the generated AST and
     translating it to Python code in the specified file
+    Recursive walking in tree invoke methods _visit + NameNode
     """
     def __init__(self, filename: str = None) -> None:
         self.depth = 0  # type: int
@@ -146,11 +147,17 @@ class Visitor:
 
     # Define clear group
     def _visit_clear_node(self, node: ClearNode) -> str:
-        raise NotImplementedError
+        id_list = self._visit(node.id_list)
+        res_str = ''
+        for var in id_list:
+            res_str += f'{var} = None\n'
+        return res_str
 
     # Define global group
     def _visit_global_node(self, node: GlobalNode) -> str:
-        raise NotImplementedError
+        id_list = self._visit(node.id_list)
+        res_str = 'global ' + ', '.join(id_list)
+        return res_str
 
     # Equality group
     def _visit_positive_equality_node(self, node: PositiveEqualityNode) -> str:
@@ -164,13 +171,16 @@ class Visitor:
         return f'{lhs} != {rhs}'
 
     # Finite unit group
-    def _visit_simple_node(self, node: SimpleNode) -> str:
+    @staticmethod
+    def _visit_simple_node(node: SimpleNode) -> str:
         return node.content
 
-    def _visit_identifier_node(self, node: IdentifierNode) -> str:
+    @staticmethod
+    def _visit_identifier_node(node: IdentifierNode) -> str:
         return node.ident
 
-    def _visit_constant_node(self, node: ConstantNode) -> str:
+    @staticmethod
+    def _visit_constant_node(node: ConstantNode) -> str:
         return node.const
 
     # Function group
@@ -222,7 +232,8 @@ class Visitor:
         return f'while {expression}:' + body_str
 
     # Jump statement group
-    def _visit_break_node(self, node: BreakNode) -> str:
+    @staticmethod
+    def _visit_break_node(node: BreakNode) -> str:
         return 'break'
 
     def _visit_return_node(self, node: ReturnNode) -> str:

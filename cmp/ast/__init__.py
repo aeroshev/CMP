@@ -1,7 +1,7 @@
 from .additive import MinusNode, PlusNode
 from .array import ArrayNode, ArrayVectorNode
 from .assigment import AssignmentNode
-from .conditional_statement import SimpleConditionalNode, TwoBranchConditionalNode
+from .conditional_statement import SimpleConditionalNode, TwoBranchConditionalNode, ElseIfClauseNode, ManyBranchConditionalNode
 from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
@@ -71,5 +71,7 @@ __all__ = (
     "IdentifierNode",
     "ConstantNode",
     "WhileLoopNode",
-    "TransposeNode"
+    "TransposeNode",
+    "ElseIfClauseNode",
+    "ManyBranchConditionalNode"
 )
