@@ -530,9 +530,15 @@ array_rdiv = array_1.//array_2
 
 '''
 
+data12 = '''
+z_fill = zeros(4)
+o_fiil = ones(4)
+
+'''
+
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data11, debug_level=False)
+    ast = parser.parse(text=data12, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)

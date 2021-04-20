@@ -15,6 +15,14 @@ class Visitor:
     _depth - inner variable for count ident
     _stack - store for return value of function
     """
+    keywords = {
+        'zeros': 'np.zeros',
+        'ones': 'np.ones',
+        'rand': 'np.random',
+        'eye': 'np.eye',
+        'diag': 'np.diag'
+    }
+
     def __init__(self, numpy_mode: bool = False, filename: str = None) -> None:
         self._depth = 0  # type: int
         self._stack = []  # type: List[Any]
@@ -118,7 +126,11 @@ class Visitor:
         return f'np.array({res})'
 
     def _visit_array_node(self, node: ArrayNode) -> str:
-        raise NotImplementedError
+        name = self._visit(node.ident)
+        name_str = (name, self.keywords[name])[name in list(self.keywords)]
+        index_list = [i_expr for i_expr in self._visit(node.content)]
+        index_str = ', '.join(index_list)
+        return f'{name_str}({index_str})'
 
     # Assignment group
     def _visit_assignment_node(self, node: AssignmentNode) -> str:
