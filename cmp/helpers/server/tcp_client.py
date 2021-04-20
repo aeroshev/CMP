@@ -1,7 +1,7 @@
-import os
 import asyncio
-from typing import Optional
+import os
 from argparse import ArgumentParser, Namespace
+from typing import Optional
 
 
 class TCPClient(ArgumentParser):
