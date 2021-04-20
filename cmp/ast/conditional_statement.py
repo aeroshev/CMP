@@ -58,7 +58,13 @@ class ManyBranchConditionalNode(ConditionalNode):
     """Node of many conditional statement"""
     __slots__ = ("main_stmt", "main_branch", "alt_chain", "alt_branch")
 
-    def __init__(self, main_stmt: Node, main_branch: List[Node], alt_chain: List[Node], alt_branch: List[Node]) -> None:
+    def __init__(
+            self,
+            main_stmt: Node,
+            main_branch: List[Node],
+            alt_chain: List[Node],
+            alt_branch: List[Node]
+    ) -> None:
         super().__init__(main_stmt=main_stmt)
         self.main_branch = main_branch
         self.alt_chain = alt_chain

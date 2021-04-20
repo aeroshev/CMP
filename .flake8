@@ -1,4 +1,4 @@
 [flake8]
 max-line-length=119
-exclude=*/cmp_tables/* output.py
+exclude=*/cmp_tables/* output.py */python_output/*
 ignore=F403 F405

@@ -9,10 +9,24 @@ class Visitor:
     Walk through the generated AST and
     translating it to Python code in the specified file
     Recursive walking in tree invoke methods _visit + NameNode
+    numpy_mode - if activated, ordinary operation will be translated
+        in numpy operations
+    filename - name of file where will be written python code
+    _depth - inner variable for count ident
+    _stack - store for return value of function
     """
-    def __init__(self, filename: str = None) -> None:
-        self.depth = 0  # type: int
-        self.stack = []  # type: List[Any]
+    keywords = {
+        'zeros': 'np.zeros',
+        'ones': 'np.ones',
+        'rand': 'np.random',
+        'eye': 'np.eye',
+        'diag': 'np.diag'
+    }
+
+    def __init__(self, numpy_mode: bool = False, filename: str = None) -> None:
+        self._depth = 0  # type: int
+        self._stack = []  # type: List[Any]
+        self.numpy_mode = numpy_mode
         if filename:
             self._output = open(filename, "w", encoding="utf-8")  # type: TextIO
 
@@ -36,14 +50,14 @@ class Visitor:
 
     def _visit(self, node: Union[Node, List[Node], List[str]]) -> Any:
         method = '_visit_' + camel_to_snake(node.__class__.__name__)
-        self.depth += 1
+        self._depth += 1
         res = getattr(self, method)(node)
-        self.depth -= 1
+        self._depth -= 1
         return res
 
     @property
     def py_tab(self) -> str:
-        return ' ' * 4 * self.depth
+        return ' ' * 4 * self._depth
 
     def tabulate_expr(self, expr: str) -> str:
         if expr == '\n':
@@ -73,22 +87,26 @@ class Visitor:
         return string
 
     def _visit_list(self, list_nodes: List[Node]) -> List[str]:  # TODO
-        self.depth -= 1
+        self._depth -= 1
         res = []
         for node in list_nodes:
             res.append(self._visit(node))
-        self.depth += 1
+        self._depth += 1
         return res
 
     # Additive group
     def _visit_plus_node(self, node: PlusNode) -> str:  # TODO add pattern
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
+        if self.numpy_mode:
+            return f'np.add({lhs}, {rhs})'
         return f'{lhs} + {rhs}'
 
     def _visit_minus_node(self, node: MinusNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
+        if self.numpy_mode:
+            return f'np.subtract({lhs}, {rhs})'
         return f'{lhs} - {rhs}'
 
     # Array group
@@ -108,7 +126,11 @@ class Visitor:
         return f'np.array({res})'
 
     def _visit_array_node(self, node: ArrayNode) -> str:
-        raise NotImplementedError
+        name = self._visit(node.ident)
+        name_str = (name, self.keywords[name])[name in list(self.keywords)]
+        index_list = [i_expr for i_expr in self._visit(node.content)]
+        index_str = ', '.join(index_list)
+        return f'{name_str}({index_str})'
 
     # Assignment group
     def _visit_assignment_node(self, node: AssignmentNode) -> str:
@@ -144,14 +166,14 @@ class Visitor:
         for elem in self._visit(node.alt_branch):
             alt_branch += self.tabulate_expr(elem)
 
-        self.depth -= 1
+        self._depth -= 1
         output_str = (
             f'if {main_stmt}:'
             f'{main_branch}'
             f'{self.py_tab}else:'
             f'{alt_branch}'
         )
-        self.depth += 1
+        self._depth += 1
         return output_str
 
     def _visit_else_if_clause_node(self, node: ElseIfClauseNode) -> str:
@@ -174,11 +196,11 @@ class Visitor:
         for elem in self._visit(node.main_branch):
             main_branch += self.tabulate_expr(elem)
 
-        self.depth -= 1
+        self._depth -= 1
         alt_chain = ''
         for cond in self._visit(node.alt_chain):
             alt_chain += self.tabulate_expr(cond)
-        self.depth += 1
+        self._depth += 1
 
         alt_branch = ''
         for elem in self._visit(node.alt_branch):
@@ -190,12 +212,12 @@ class Visitor:
             f'{alt_chain}'
         )
         if len(alt_branch) > 0:
-            self.depth -= 1
+            self._depth -= 1
             output_str += (
                 f'{self.py_tab}else:'
                 f'{alt_branch}'
             )
-            self.depth += 1
+            self._depth += 1
         return output_str
 
     # Define clear group
@@ -239,7 +261,7 @@ class Visitor:
     # Function group
     def _visit_function_node(self, node: FunctionNode) -> str:
         declare, return_list = self._visit(node.declare)
-        self.stack.append(return_list)
+        self._stack.append(return_list)
         body = self._visit(node.body)
 
         body_str = ''
@@ -249,7 +271,7 @@ class Visitor:
         return_str += ', '.join(return_list)
         func_str = f'def {declare}:\n' + body_str + return_str
 
-        self.stack.pop()
+        self._stack.pop()
         return func_str
 
     def _visit_function_declare_node(self, node: FunctionDeclareNode) -> Tuple[str, Optional[List[str]]]:
@@ -290,8 +312,8 @@ class Visitor:
         return 'break'
 
     def _visit_return_node(self, node: ReturnNode) -> str:
-        if len(self.stack) > 0:
-            return_list = self.stack[-1]
+        if len(self._stack) > 0:
+            return_list = self._stack[-1]
             return_str = 'return ' + ', '.join(return_list)
             return return_str
         return self.tabulate_expr('return')
@@ -324,16 +346,24 @@ class Visitor:
         return f'{lhs} ** {rhs}'
 
     def _visit_array_mul_node(self, node: ArrayMulNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'np.multiply({lhs}, {rhs})'
 
     def _visit_array_div_node(self, node: ArrayDivNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'np.divide({lhs}, {rhs})'
 
     def _visit_array_r_div_node(self, node: ArrayRDivNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'np.divide({rhs}, {lhs})'
 
     def _visit_array_power_node(self, node: ArrayPowerNode) -> str:
-        raise NotImplementedError
+        lhs = self._visit(node.lhs)
+        rhs = self._visit(node.rhs)
+        return f'np.power({lhs}, {rhs})'
 
     # Relational group
     def _visit_greater_relational_node(self, node: GreaterRelationalNode) -> str:

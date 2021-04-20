@@ -34,12 +34,12 @@ class Lexer(LogMixin):
         "STRING_LITERAL",
         "LE_OP", "GE_OP", "EQ_OP", "NE_OP",
         "ARRAY_MUL", "ARRAY_POW", "ARRAY_DIV", "ARRAY_RDIV", "TRANSPOSE",
-        "NEWLINE"
+        "NEWLINE",
+        "COMMENT"
     ] + list(keywords.values()))
 
     # Ignore symbol
     t_ignore_WHITESPACE = r"\s+"
-    t_ignore_COMMENTS = r"\%.*"
 
     # literals
     literals = [
@@ -70,6 +70,13 @@ class Lexer(LogMixin):
     t_GE_OP = r"\>="
     t_EQ_OP = r"=="
     t_NE_OP = r"(~=)|(!=)"
+    # Array operations
+    t_ARRAY_MUL = r"\.\*"
+    t_ARRAY_POW = r"\.\^"
+    t_ARRAY_DIV = r"\./"
+    t_ARRAY_RDIV = r"\.//"
+    # Comments
+    t_ignore_COMMENT = r"\%.*"  # TODO translate comments
 
     def __init__(self) -> None:
         self._lexer = lex(
@@ -144,10 +151,20 @@ if (n & m)
 end
 '''
 
+data11 = '''
+array_1 = [1 0 3; 5 3 8; 2 4 6];
+array_2 = [2 3 7, 9 1 5; 8 8 3];
+
+array_mul = array_1.*array_2
+array_power = array_1.^array_2
+array_div = array_1./array_2
+array_rdiv = array_1.//array_2
+
+'''
 
 if __name__ == '__main__':
     m = Lexer()
-    m.input(data2)
+    m.input(data11)
     token = 'not none'
     while token:
         token = m.token()

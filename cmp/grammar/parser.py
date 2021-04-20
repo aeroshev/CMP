@@ -29,7 +29,11 @@ class Parser(LogMixin):
         "/": DivideNode,
         "^": PowerNode,
         "+": PlusNode,
-        "-": MinusNode
+        "-": MinusNode,
+        ".*": ArrayMulNode,
+        ".^": ArrayPowerNode,
+        "./": ArrayDivNode,
+        ".//": ArrayRDivNode
     }
 
     def __init__(
@@ -515,9 +519,26 @@ end
 
 '''
 
+data11 = '''
+array_1 = [1 0 3; 5 3 8; 2 4 6];
+array_2 = [2 3 7; 9 1 5; 8 8 3];
+
+array_mul = array_1.*array_2
+array_power = array_1.^array_2
+array_div = array_1./array_2
+array_rdiv = array_1.//array_2
+
+'''
+
+data12 = '''
+z_fill = zeros(4)
+o_fiil = ones(4)
+
+'''
+
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data10, debug_level=False)
+    ast = parser.parse(text=data12, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)
