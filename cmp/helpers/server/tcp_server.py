@@ -1,31 +1,34 @@
 import asyncio
+import os
+from typing import Callable
+
+from cmp.helpers import LogMixin
 
 
-async def handle_echo(reader, writer):
-    data = await reader.read(100)
-    message = data.decode()
-    addr = writer.get_extra_info('peername')
-    print("Received %r from %r" % (message, addr))
+class TCPServer(LogMixin):  # TODO setup logger write in file
+    """Server for service matlab compiler"""
 
-    print("Send: %r" % message)
-    writer.write(data)
-    await writer.drain()
+    def __init__(self, consumer: Callable[[str], str]) -> None:
+        self.hostname = os.environ.get("HOSTNAME", '127.0.0.1')
+        self.port = os.environ.get("PORT", 8888)
+        self.consumer = consumer
 
-    print("Close the client socket")
-    writer.close()
+    async def execute(self) -> None:
+        self.logger.info(f"Start server on address {self.hostname}:{self.port}")
+        print(f"Start server on address {self.hostname}:{self.port}")
+        server = await asyncio.start_server(self._handle_connect, self.hostname, self.port)
+        async with server:
+            await server.serve_forever()
 
-loop = asyncio.get_event_loop()
-coro = asyncio.start_server(handle_echo, '127.0.0.1', 8888, loop=loop)
-server = loop.run_until_complete(coro)
+    async def _handle_connect(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
+        print('Handle connect')
+        data = await reader.read()
+        message = data.decode(encoding='utf-8')
+        addr = writer.get_extra_info('peername')
+        self.logger.info(f"Received data from {addr}")
 
-# Serve requests until Ctrl+C is pressed
-print('Serving on {}'.format(server.sockets[0].getsockname()))
-try:
-    loop.run_forever()
-except KeyboardInterrupt:
-    pass
-
-# Close the server
-server.close()
-loop.run_until_complete(server.wait_closed())
-loop.close()
+        response = self.consumer(message)
+        print(response)
+        writer.write(response.encode())
+        # await writer.drain()
+        writer.close()

@@ -1,9 +1,11 @@
+import asyncio
 import os
 from argparse import ArgumentParser, Namespace
 from typing import Optional
 
 from cmp.grammar import Parser
 from cmp.helpers import BadInputError, LogMixin, Singleton
+from cmp.helpers.server import TCPServer
 from cmp.traverse import Visitor
 
 
@@ -13,7 +15,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
     """
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.description = 'Empty description'
+        self.description = 'Compiler MATLAB code to Python scripts'
         self.command_group = self.add_mutually_exclusive_group(required=True)
         self.command_group.add_argument(
             '-p',
@@ -26,6 +28,12 @@ class Command(ArgumentParser, LogMixin, Singleton):
             '--string',
             type=str,
             help='input data from console'
+        )
+        self.command_group.add_argument(
+            '-S',
+            '--server',
+            action='store_true',
+            help='Run async TCP server'
         )
         self.add_argument(
             '-of',
@@ -44,8 +52,16 @@ class Command(ArgumentParser, LogMixin, Singleton):
     def execute(self) -> None:
         args = self.parse_args()
         parser = self._get_parser()
-        text = self._get_text(args)
 
+        if args.server:
+            tcp_server = TCPServer(consumer=self.network_execute)
+            try:
+                asyncio.run(tcp_server.execute())
+            except KeyboardInterrupt:
+                self.logger.info("Server shutdown")
+                return None
+
+        text = self._get_text(args)
         if text:
             ast = parser.parse(text=self._get_text(args), debug_level=False)
         else:
@@ -69,6 +85,23 @@ class Command(ArgumentParser, LogMixin, Singleton):
         if output:
             # self.logger.info(output)
             print(output)
+
+    def network_execute(self, message: str) -> Optional[str]:
+        print('Invoke parser')
+        parser = self._get_parser()
+        if message:
+            ast = parser.parse(text=message, debug_level=False)
+        else:
+            self.logger.error('Incorrect input data')
+            return None
+        visitor = self._get_visitor()
+        try:
+            output = visitor.traverse_ast(root=ast)
+        except BadInputError as err:
+            # self.logger.error(err)
+            print(err)
+
+        return output or ''
 
     @staticmethod
     def _validate_file(path: str) -> bool:
