@@ -94,13 +94,14 @@ class Command(ArgumentParser, LogMixin, Singleton):
         else:
             self.logger.error('Incorrect input data')
             return None
-        visitor = self._get_visitor()
+        visitor = self._get_visitor(filename='')
         try:
             output = visitor.traverse_ast(root=ast)
         except BadInputError as err:
             # self.logger.error(err)
             print(err)
 
+        print(f'Res parse {output}')
         return output or ''
 
     @staticmethod

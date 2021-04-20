@@ -22,13 +22,14 @@ class TCPServer(LogMixin):  # TODO setup logger write in file
 
     async def _handle_connect(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         print('Handle connect')
-        data = await reader.read()
+        data = await reader.read(100)
         message = data.decode(encoding='utf-8')
-        addr = writer.get_extra_info('peername')
-        self.logger.info(f"Received data from {addr}")
+        print('Received data')
+        # addr = writer.get_extra_info('peername')
+        # self.logger.info(f"Received data from {addr}")
 
         response = self.consumer(message)
-        print(response)
+        print(f'Send response {response}')
         writer.write(response.encode())
-        # await writer.drain()
+        await writer.drain()
         writer.close()

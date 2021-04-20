@@ -77,7 +77,7 @@ class TCPClient(ArgumentParser):
         print(message)
         writer.write(message.encode())
         print('Send')
-        data = await reader.read()
+        data = await reader.read(100)
         writer.close()
 
         return data.decode(encoding='utf-8')
