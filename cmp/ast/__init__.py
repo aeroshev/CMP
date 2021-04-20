@@ -1,7 +1,12 @@
 from .additive import MinusNode, PlusNode
 from .array import ArrayNode, ArrayVectorNode
 from .assigment import AssignmentNode
-from .conditional_statement import SimpleConditionalNode, TwoBranchConditionalNode, ElseIfClauseNode, ManyBranchConditionalNode
+from .conditional_statement import (
+    ElseIfClauseNode,
+    ManyBranchConditionalNode,
+    SimpleConditionalNode,
+    TwoBranchConditionalNode
+)
 from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
@@ -28,8 +33,8 @@ from .relational import (
 )
 from .root import FileAST
 from .sparse import SparseNode
-from .unary_expression import UnaryExpressionNode
 from .transpose import TransposeNode
+from .unary_expression import UnaryExpressionNode
 
 __all__ = (
     "AssignmentNode",
