@@ -48,13 +48,32 @@ class Command(ArgumentParser, LogMixin, Singleton):
             action='version',
             version='Pycmp: 1.0.0'
         )
+        self.add_argument(
+            '-P',
+            '--port',
+            required=False,
+            type=int,
+            help='Port of server'
+        )
+        self.add_argument(
+            '-H',
+            '--host',
+            required=False,
+            type=str,
+            help='Hostname of server'
+        )
 
     def execute(self) -> None:
         args = self.parse_args()
         parser = self._get_parser()
 
         if args.server:
-            tcp_server = TCPServer(consumer=self.network_execute)
+            keys = {
+                'host': args.host,
+                'port': args.port,
+                'consumer': self.network_execute
+            }
+            tcp_server = TCPServer(**keys)
             try:
                 asyncio.run(tcp_server.execute())
             except KeyboardInterrupt:
@@ -74,35 +93,31 @@ class Command(ArgumentParser, LogMixin, Singleton):
                 return None
 
         visitor = self._get_visitor(filename=args.output_file)
-
-        output = None
         try:
             output = visitor.traverse_ast(root=ast)
         except BadInputError as err:
-            # self.logger.error(err)
-            print(err)
+            self.logger.error(err)
+            return None
 
         if output:
-            # self.logger.info(output)
-            print(output)
+            self.logger.info(output)
 
     def network_execute(self, message: str) -> Optional[str]:
-        print('Invoke parser')
         parser = self._get_parser()
         if message:
             ast = parser.parse(text=message, debug_level=False)
         else:
             self.logger.error('Incorrect input data')
             return None
-        visitor = self._get_visitor(filename='')
+
+        visitor = Visitor()
         try:
             output = visitor.traverse_ast(root=ast)
         except BadInputError as err:
-            # self.logger.error(err)
-            print(err)
+            self.logger.error(err)
+            return None
 
-        print(f'Res parse {output}')
-        return output or ''
+        return output
 
     @staticmethod
     def _validate_file(path: str) -> bool:
@@ -113,7 +128,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
         return Parser(yacc_debug=False)
 
     @staticmethod
-    def _get_visitor(filename: str) -> Visitor:
+    def _get_visitor(filename: str = None) -> Visitor:
         if filename:
             return Visitor(filename=filename)
         else:
