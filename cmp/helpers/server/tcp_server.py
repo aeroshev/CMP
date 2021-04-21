@@ -8,9 +8,9 @@ from cmp.helpers import LogMixin
 class TCPServer(LogMixin):  # TODO setup logger write in file
     """Server for service matlab compiler"""
 
-    def __init__(self, consumer: Callable[[str], str]) -> None:
-        self.hostname = os.environ.get("HOSTNAME", '127.0.0.1')
-        self.port = os.environ.get("PORT", 8888)
+    def __init__(self, consumer: Callable[[str], str], host: str = None, port: int = None) -> None:
+        self.hostname = host or os.environ.get("HOSTNAME", '127.0.0.1')
+        self.port = port or os.environ.get("PORT", 8888)
         self.consumer = consumer
 
     async def execute(self) -> None:
@@ -21,15 +21,17 @@ class TCPServer(LogMixin):  # TODO setup logger write in file
             await server.serve_forever()
 
     async def _handle_connect(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
-        print('Handle connect')
-        data = await reader.read(100)
+        data = await reader.read()
         message = data.decode(encoding='utf-8')
-        print('Received data')
-        # addr = writer.get_extra_info('peername')
-        # self.logger.info(f"Received data from {addr}")
+        addr = writer.get_extra_info('peername')
+        print(f"Received data from {addr[0]}:{addr[1]}")
 
         response = self.consumer(message)
-        print(f'Send response {response}')
+        if response is None:
+            response = 'Internal error'
         writer.write(response.encode())
+        writer.write_eof()
         await writer.drain()
+
         writer.close()
+        await writer.wait_closed()

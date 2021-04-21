@@ -42,16 +42,14 @@ class TCPClient(ArgumentParser):
 
     def execute(self) -> None:
         args = self.parse_args()
-
         message = self._get_text(args)
+
         address = self.address
         if args.address:
             address = args.address
         port = self.port
         if args.port:
             port = args.port
-
-        print(args)
 
         response = asyncio.run(self._send_data(message, address, port))
         print(response)
@@ -74,15 +72,22 @@ class TCPClient(ArgumentParser):
     @staticmethod
     async def _send_data(message: str, host: str, port: int) -> str:
         reader, writer = await asyncio.open_connection(host, port)
-        print(message)
+
         writer.write(message.encode())
-        print('Send')
-        data = await reader.read(100)
+        writer.write_eof()
+        await writer.drain()
+
+        data = await reader.read()
         writer.close()
+        await writer.wait_closed()
 
         return data.decode(encoding='utf-8')
 
 
-if __name__ == '__main__':
+def main() -> None:
     client = TCPClient()
     client.execute()
+
+
+if __name__ == '__main__':
+    main()
