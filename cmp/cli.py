@@ -143,4 +143,4 @@ class Command(ArgumentParser, LogMixin, Singleton):
                 return None
             with open(args.path, "r") as file:
                 content = file.read()
-            return content
+                return content

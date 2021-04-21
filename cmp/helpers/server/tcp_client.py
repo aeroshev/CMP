@@ -42,14 +42,10 @@ class TCPClient(ArgumentParser):
 
     def execute(self) -> None:
         args = self.parse_args()
-        message = self._get_text(args)
 
-        address = self.address
-        if args.address:
-            address = args.address
-        port = self.port
-        if args.port:
-            port = args.port
+        message = self._get_text(args)
+        address = args.address or self.address
+        port = args.port or self.port
 
         response = asyncio.run(self._send_data(message, address, port))
         print(response)
