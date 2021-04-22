@@ -35,6 +35,12 @@ class Visitor:
             self._output.close()
 
     def traverse_ast(self, root: FileAST) -> Optional[str]:
+        """
+        Main function for traverse and printing translated code.
+        param: root: FileAST - root of AST
+        return: python code or None if a file
+        was specified when creating an object
+        """
         if root is None:
             raise BadInputError('Root of AST is None')
 
@@ -60,6 +66,11 @@ class Visitor:
         return ' ' * 4 * self._depth
 
     def tabulate_expr(self, expr: str) -> str:
+        """
+        Shift expression on python tab
+        and filtering entered expression
+        on empty symbol or \n symbol
+        """
         if expr == '\n':
             return expr
         if len(expr) > 0:

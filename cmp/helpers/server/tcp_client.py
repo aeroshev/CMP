@@ -41,6 +41,7 @@ class TCPClient(ArgumentParser):
         )
 
     def execute(self) -> None:
+        """Start TCP client in CLI"""
         args = self.parse_args()
 
         message = self._get_text(args)

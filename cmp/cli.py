@@ -64,6 +64,10 @@ class Command(ArgumentParser, LogMixin, Singleton):
         )
 
     def execute(self) -> None:
+        """
+        Entry point of program CMP
+        for executed in command line
+        """
         args = self.parse_args()
         parser = self._get_parser()
 
@@ -103,6 +107,10 @@ class Command(ArgumentParser, LogMixin, Singleton):
             self.logger.info(output)
 
     def network_execute(self, message: str) -> Optional[str]:
+        """
+        Special entry point of program CMP
+        for working in TCP server
+        """
         parser = self._get_parser()
         if message:
             ast = parser.parse(text=message, debug_level=False)
