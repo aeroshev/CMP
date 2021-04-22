@@ -1,4 +1,4 @@
-cmp.helpers package
+Helpers package
 ===================
 
 Subpackages
@@ -12,7 +12,7 @@ Subpackages
 Submodules
 ----------
 
-cmp.helpers.camel\_to\_snake module
+Camel to snake module
 -----------------------------------
 
 .. automodule:: cmp.helpers.camel_to_snake
@@ -20,7 +20,7 @@ cmp.helpers.camel\_to\_snake module
    :undoc-members:
    :show-inheritance:
 
-cmp.helpers.exceptions module
+Exceptions module
 -----------------------------
 
 .. automodule:: cmp.helpers.exceptions
@@ -28,7 +28,7 @@ cmp.helpers.exceptions module
    :undoc-members:
    :show-inheritance:
 
-cmp.helpers.log module
+Logger module
 ----------------------
 
 .. automodule:: cmp.helpers.log
@@ -36,7 +36,7 @@ cmp.helpers.log module
    :undoc-members:
    :show-inheritance:
 
-cmp.helpers.singleton module
+Pattern singleton module
 ----------------------------
 
 .. automodule:: cmp.helpers.singleton

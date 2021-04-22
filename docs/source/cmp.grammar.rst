@@ -1,4 +1,4 @@
-cmp.grammar package
+Grammar package
 ===================
 
 Subpackages
@@ -12,7 +12,7 @@ Subpackages
 Submodules
 ----------
 
-cmp.grammar.lexer module
+Lexer module
 ------------------------
 
 .. automodule:: cmp.grammar.lexer
@@ -20,7 +20,7 @@ cmp.grammar.lexer module
    :undoc-members:
    :show-inheritance:
 
-cmp.grammar.parser module
+Parser module
 -------------------------
 
 .. automodule:: cmp.grammar.parser

@@ -1,4 +1,4 @@
-cmp package
+CMP package
 ===========
 
 Subpackages
@@ -15,7 +15,7 @@ Subpackages
 Submodules
 ----------
 
-cmp.cli module
+CLI module
 --------------
 
 .. automodule:: cmp.cli

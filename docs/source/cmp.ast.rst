@@ -1,4 +1,4 @@
-cmp.ast package
+AST package
 ===============
 
 Submodules

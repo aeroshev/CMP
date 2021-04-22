@@ -1,10 +1,10 @@
-cmp.traverse package
+Traverse package
 ====================
 
 Submodules
 ----------
 
-cmp.traverse.traverse\_ast module
+Traverse AST module
 ---------------------------------
 
 .. automodule:: cmp.traverse.traverse_ast

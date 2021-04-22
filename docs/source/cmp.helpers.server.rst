@@ -1,10 +1,10 @@
-cmp.helpers.server package
+Server package
 ==========================
 
 Submodules
 ----------
 
-cmp.helpers.server.setup module
+Server setup
 -------------------------------
 
 .. automodule:: cmp.helpers.server.setup
@@ -12,7 +12,7 @@ cmp.helpers.server.setup module
    :undoc-members:
    :show-inheritance:
 
-cmp.helpers.server.tcp\_client module
+Tcp client module
 -------------------------------------
 
 .. automodule:: cmp.helpers.server.tcp_client
@@ -20,7 +20,7 @@ cmp.helpers.server.tcp\_client module
    :undoc-members:
    :show-inheritance:
 
-cmp.helpers.server.tcp\_server module
+Tcp server module
 -------------------------------------
 
 .. automodule:: cmp.helpers.server.tcp_server
