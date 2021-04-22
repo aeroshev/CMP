@@ -52,9 +52,9 @@ class Parser(LogMixin):
             optimize=True,
             errorlog=self.logger
         )
-        self._scope_stack = [dict()]  # type: List[dict]
-        self._last_yielded_token = None
-        self._err_flag = False
+        # self._scope_stack = [dict()]  # type: List[dict]
+        # self._last_yielded_token = None
+        # self._err_flag = False
 
     precedence = (
         ('right', '-'),
@@ -70,22 +70,14 @@ class Parser(LogMixin):
 
     @staticmethod
     def _save_merge(
-            left: Union[List[Node], Node, None],
-            right: Union[List[Node], Node, None]
+            left: Union[List[Node], Node],
+            right: Union[List[Node], Node]
     ) -> List[Node]:
-        if left is None:
-            res_ = right
-        elif right is None:
-            res_ = left
-        else:
-            res_ = [*left, *right]
-        if res_:
-            res_ = list(filter(lambda x: x is not None, chain(res_)))
-        else:
-            res_ = []
-        return res_
+        listed_left = [left] if len(left) == 1 else left
+        listed_right = [right] if len(right) == 1 else right
+        return [*listed_left, *listed_right]
 
-    def parse(self, text, filename='', debug_level=True) -> Any:
+    def parse(self, text, filename='', debug_level=True) -> Any:  # TODO Debug mode
         return self._parser.parsedebug(
             input=text,
             lexer=self._lex,
@@ -142,7 +134,7 @@ class Parser(LogMixin):
         index_expression : ':'
                          | expression
         """
-        p[0] = p[1] if p[1] != ':' else None
+        p[0] = p[1] if p[1] != ':' else []  # TODO
 
     def p_index_expression_list(self, p: YaccProduction) -> None:
         """
@@ -419,126 +411,15 @@ class Parser(LogMixin):
         print(f"Syntax error in input! {p}")
 
 
-data1 = '''
-if (a == 245)
-    b = [2, 3, 5]
-    n = 4
-else
-    'to_do'
-end
-
-
-
-% Just a comment
-'''
-
-data2 = '''b = [2 * 2, 3, 5]
-'''
-
-data3 = '''function [m, s] = stat(x)
-    n = x + x
-    m = n + x
-    s = m + n
-end
-'''
-
-data4 = '''
-s = 10;
-
-for c = 1:s
-    n = 1
-end
-'''
-
-data5 = '''
-counter = 15
-
-for (i = 1:counter)
-    if (i == 10)
-        break
-    end
-end
-'''
-
-data6 = '''
-A = [1, 1, 0, 0];
-B = [1; 2; 3; 4];
-
-C = B * A
-'''
-
-data7 = '''
-A = [1 3 5; 2 4 7];
-B = [-5 8 11; 3 9 21; 4 0 8];
-
-C = A * B
-'''
-
-data8 = '''
-n = 10
-f = n
-while n > 1
-    n = n - 1
-    f = f * n
-end
-'''
-
-data9 = '''
-n = -12
-m = 34
-
-if (n & m)
-    m = m - n
-    ar = [1 2 3; 4 5 6; 7 8 9]
-    ar = ar.'
-end
-'''
-
-data10 = '''
-global d
-
-function [n, m] = do_something()
-    n = 10
-    m = 45
-    if n | m;
-        d = [1 2 3; 4 5 6]
-    elseif n & m;
-        return
-    elseif n - m > 0;
-        n = n - m
-    end
-
-    if m + 1 >= 1;
-        s = 'do_something'
-    elseif n * 0 > 0;
-        r = [1 1 1 1]
-    else
-        r = 'skip'
-    end
-end
+# TODO Debug mode
+data = '''
 
 '''
 
-data11 = '''
-array_1 = [1 0 3; 5 3 8; 2 4 6];
-array_2 = [2 3 7; 9 1 5; 8 8 3];
-
-array_mul = array_1.*array_2
-array_power = array_1.^array_2
-array_div = array_1./array_2
-array_rdiv = array_1.//array_2
-
-'''
-
-data12 = '''
-z_fill = zeros(4)
-o_fiil = ones(4)
-
-'''
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data12, debug_level=False)
+    ast = parser.parse(text=data, debug_level=False)
     v = Visitor()
     res = v.traverse_ast(ast)
     print(res)

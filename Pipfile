@@ -12,6 +12,8 @@ mypy = "==0.812"
 flake8 = "==3.8.4"
 isort = "==5.7.0"
 pytest = "==6.2.2"
+sphinx = "==3.5.4"
+rinohtype = "==0.5.2"
 
 [requires]
 python_version = "3.9"
