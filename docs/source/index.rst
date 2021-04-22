@@ -1,5 +1,5 @@
 .. Compiler MATLAB to Python documentation master file, created by
-   sphinx-quickstart on Wed Apr 21 19:04:42 2021.
+   sphinx-quickstart on Thu Apr 22 15:01:49 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -10,6 +10,7 @@ Welcome to Compiler MATLAB to Python's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   modules
 
 
 Indices and tables
