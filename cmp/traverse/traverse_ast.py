@@ -1,7 +1,7 @@
 from typing import Any, Iterator, List, Optional, TextIO, Tuple, Union
 
 from cmp.ast import *
-from cmp.helpers import BadInputError, camel_to_snake
+from cmp.helpers import BadInputError, camel_to_snake, colors
 
 
 class Visitor:
@@ -37,8 +37,8 @@ class Visitor:
     def traverse_ast(self, root: FileAST) -> Optional[str]:
         """
         Main function for traverse and printing translated code.
-        param: root: FileAST - root of AST
-        return: python code or None if a file
+        :param: root: FileAST - root of AST
+        :return: python code or None if a file
         was specified when creating an object
         """
         if root is None:
@@ -255,6 +255,10 @@ class Visitor:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
         return f'{lhs} != {rhs}'
+
+    # Error group
+    def _visit_error_node(self, node: ErrorNode) -> str:
+        return f'{colors.WARNING}!{node.message}!{colors.ENDC}'
 
     # Finite unit group
     @staticmethod

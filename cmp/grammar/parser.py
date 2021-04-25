@@ -35,6 +35,10 @@ class Parser(LogMixin):
         "./": ArrayDivNode,
         ".//": ArrayRDivNode
     }
+    _recover_table = frozenset({
+        'NEWLINE',
+        ';'
+    })
 
     def __init__(
             self,
@@ -52,9 +56,6 @@ class Parser(LogMixin):
             optimize=True,
             errorlog=self.logger
         )
-        # self._scope_stack = [dict()]  # type: List[dict]
-        # self._last_yielded_token = None
-        # self._err_flag = False
 
     precedence = (
         ('right', '-'),
@@ -255,8 +256,15 @@ class Parser(LogMixin):
         """
         statement_list : statement
                        | statement_list statement
+                       | statement_list_error
         """
         p[0] = p[1] if len(p) == 2 else self._save_merge(left=p[1], right=p[2])
+
+    def p_statement_list_error(self, p: YaccProduction) -> None:
+        """
+        statement_list_error : statement_list error
+        """
+        p[0] = ErrorNode(message="Syntax error statement")
 
     def p_identifier_list(self, p: YaccProduction) -> None:
         """
@@ -303,6 +311,12 @@ class Parser(LogMixin):
                    | array_list array_element
         """
         p[0] = p[1] if len(p) == 2 else self._save_merge(left=p[1], right=p[2])
+
+    # def p_array_list_error(self, p: YaccProduction) -> None:
+    #     """
+    #     array_list_error : array_list error
+    #     """
+    #     p[0] = ErrorNode(message='Syntax error at array element')
 
     def p_selection_statement(self, p: YaccProduction) -> None:
         """
@@ -408,11 +422,20 @@ class Parser(LogMixin):
         p[0] = FunctionNode(declare=p[2], body=p[4])
 
     def p_error(self, p: YaccProduction) -> None:
+        # Panic recovery mode
         print(f"Syntax error in input! {p}")
+        while True:
+            token = self._parser.token()
+            if not token or token.type in self._recover_table:
+                break
+        self._parser.restart()
 
 
 # TODO Debug mode
 data = '''
+a = [1; 2);
+
+b = [1; 2; 3]
 
 '''
 
