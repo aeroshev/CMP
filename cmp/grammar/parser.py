@@ -1,4 +1,3 @@
-from itertools import chain
 from typing import Any, List, Union
 
 from ply.yacc import YaccProduction, yacc
@@ -6,7 +5,7 @@ from ply.yacc import YaccProduction, yacc
 from cmp.ast import *
 from cmp.grammar import Lexer
 from cmp.grammar.cmp_tables import abs_module_path
-from cmp.helpers import LogMixin
+from cmp.helpers import LogMixin, colors
 from cmp.traverse.traverse_ast import Visitor
 
 
@@ -47,6 +46,7 @@ class Parser(LogMixin):
     ) -> None:
         self._lex = lexer()
         self.tokens = self._lex.tokens
+        self.error_messages = []  # type: List[str]
         self._parser = yacc(
             module=self,
             start='translation_unit',
@@ -264,7 +264,13 @@ class Parser(LogMixin):
         """
         statement_list_error : statement_list error
         """
-        p[0] = ErrorNode(message="Syntax error statement")
+        error_message = (
+            f"{colors.WARNING}"
+            f"Syntax error at line {p.lineno(1)} in position {p.lexpos(1)}! Handling: {p[2]}"
+            f"{colors.ENDC}"
+        )
+        self.error_messages.append(error_message)
+        p[0] = ErrorNode(message=error_message)
 
     def p_identifier_list(self, p: YaccProduction) -> None:
         """
@@ -324,6 +330,7 @@ class Parser(LogMixin):
                             | IF expression statement_list ELSE statement_list END eostmt
                             | IF expression statement_list elseif_clause END eostmt
                             | IF expression statement_list elseif_clause ELSE statement_list END eostmt
+                            | selection_statement_invoke_error
         """
         if len(p) == 9:
             p[0] = ManyBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_chain=p[4], alt_branch=p[6])
@@ -333,6 +340,12 @@ class Parser(LogMixin):
             p[0] = ManyBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_chain=p[4], alt_branch=[])
         elif len(p) == 6:
             p[0] = SimpleConditionalNode(main_stmt=p[2], stmt_list=p[3])
+
+    def p_selection_statement_invoke_error(self, p: YaccProduction) -> None:
+        """
+        selection_statement_invoke_error : IF expression statement_list
+        """
+        raise SyntaxError
 
     def p_elseif_clause(self, p: YaccProduction) -> None:
         """
@@ -423,7 +436,14 @@ class Parser(LogMixin):
 
     def p_error(self, p: YaccProduction) -> None:
         # Panic recovery mode
-        print(f"Syntax error in input! {p}")
+        line = p.lineno if p else ''
+        index = p.lexpos if p else ''
+        name_tok = p.type if p else p
+        self.error_messages.append(
+            f"{colors.WARNING}"
+            f"Syntax error at line {line} in position {index}! Handling: {name_tok}"
+            f"{colors.ENDC}"
+        )
         while True:
             token = self._parser.token()
             if not token or token.type in self._recover_table:
@@ -437,12 +457,21 @@ a = [1; 2);
 
 b = [1; 2; 3]
 
+if (a == 2)
+    s = 1
+
+c = 4
+
 '''
 
 
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
     ast = parser.parse(text=data, debug_level=False)
-    v = Visitor()
-    res = v.traverse_ast(ast)
-    print(res)
+    if len(parser.error_messages) > 0:
+        for message in parser.error_messages:
+            print(message)
+    else:
+        v = Visitor()
+        res = v.traverse_ast(ast)
+        print(res)
