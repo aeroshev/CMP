@@ -70,7 +70,9 @@ class Command(ArgumentParser, LogMixin, Singleton):
         """
         args = self.parse_args()
         parser = self._get_parser()
+        setattr(args, 'parser', parser)
 
+        # Check --server key
         if args.server:
             keys = {
                 'host': args.host,
@@ -84,6 +86,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
                 self.logger.info("Server shutdown")
                 return None
 
+        # Check --string key
         text = self._get_text(args)
         if text:
             ast = parser.parse(text=self._get_text(args), debug_level=False)
@@ -91,6 +94,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
             self.logger.error('Incorrect input data')
             return None
 
+        # Check --output-file key
         if args.output_file:
             if not self._validate_file(args.output_file):
                 self.logger.error("Incorrect output path to file")
@@ -118,12 +122,15 @@ class Command(ArgumentParser, LogMixin, Singleton):
             self.logger.error('Incorrect input data')
             return None
 
-        visitor = Visitor()
-        try:
-            output = visitor.traverse_ast(root=ast)
-        except BadInputError as err:
-            self.logger.error(err)
-            return None
+        if parser.has_errors:
+            output = '\n'.join([msg for msg in parser.errors()])
+        else:
+            visitor = Visitor()
+            try:
+                output = visitor.traverse_ast(root=ast)
+            except BadInputError as err:
+                self.logger.error(err)
+                return None
 
         return output
 
