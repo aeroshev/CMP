@@ -1,12 +1,11 @@
-from itertools import chain
-from typing import Any, List, Union
+from typing import Any, Iterator, List, Union
 
 from ply.yacc import YaccProduction, yacc
 
 from cmp.ast import *
 from cmp.grammar import Lexer
 from cmp.grammar.cmp_tables import abs_module_path
-from cmp.helpers import LogMixin
+from cmp.helpers import LogMixin, colors
 from cmp.traverse.traverse_ast import Visitor
 
 
@@ -35,6 +34,10 @@ class Parser(LogMixin):
         "./": ArrayDivNode,
         ".//": ArrayRDivNode
     }
+    _recover_table = frozenset({
+        'NEWLINE',
+        ';'
+    })
 
     def __init__(
             self,
@@ -43,6 +46,7 @@ class Parser(LogMixin):
     ) -> None:
         self._lex = lexer()
         self.tokens = self._lex.tokens
+        self._error_messages = []  # type: List[str]
         self._parser = yacc(
             module=self,
             start='translation_unit',
@@ -52,15 +56,20 @@ class Parser(LogMixin):
             optimize=True,
             errorlog=self.logger
         )
-        # self._scope_stack = [dict()]  # type: List[dict]
-        # self._last_yielded_token = None
-        # self._err_flag = False
 
     precedence = (
         ('right', '-'),
         ('right', '~'),
         ('right', '+')
     )
+
+    @property
+    def has_errors(self) -> bool:
+        return True if len(self._error_messages) > 0 else False
+
+    def errors(self) -> Iterator[str]:
+        for err_message in self._error_messages:
+            yield err_message
 
     def _lhs_rhs_expression(self, p: YaccProduction) -> None:
         if len(p) == 4:
@@ -255,8 +264,21 @@ class Parser(LogMixin):
         """
         statement_list : statement
                        | statement_list statement
+                       | statement_list_error
         """
         p[0] = p[1] if len(p) == 2 else self._save_merge(left=p[1], right=p[2])
+
+    def p_statement_list_error(self, p: YaccProduction) -> None:
+        """
+        statement_list_error : statement_list error
+        """
+        error_message = (
+            f"{colors.WARNING}"
+            f"Syntax error at line {p.lineno(1)}! Missing: {p[2]}"
+            f"{colors.ENDC}"
+        )
+        self._error_messages.append(error_message)
+        p[0] = ErrorNode(message=error_message)
 
     def p_identifier_list(self, p: YaccProduction) -> None:
         """
@@ -310,6 +332,8 @@ class Parser(LogMixin):
                             | IF expression statement_list ELSE statement_list END eostmt
                             | IF expression statement_list elseif_clause END eostmt
                             | IF expression statement_list elseif_clause ELSE statement_list END eostmt
+                            | selection_statement_invoke_error
+                            | selection_statement_error
         """
         if len(p) == 9:
             p[0] = ManyBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_chain=p[4], alt_branch=p[6])
@@ -319,6 +343,26 @@ class Parser(LogMixin):
             p[0] = ManyBranchConditionalNode(main_stmt=p[2], main_branch=p[3], alt_chain=p[4], alt_branch=[])
         elif len(p) == 6:
             p[0] = SimpleConditionalNode(main_stmt=p[2], stmt_list=p[3])
+        else:
+            p[0] = p[1]
+
+    def p_selection_statement_error(self, p: YaccProduction) -> None:
+        """
+        selection_statement_error : IF error
+        """
+        error_message = (
+            f"{colors.WARNING}"
+            f"Syntax error at line {p.lineno(1)}! Missing: 'end'"
+            f"{colors.ENDC}"
+        )
+        self._error_messages.append(error_message)
+        p[0] = ErrorNode(message=error_message)
+
+    def p_selection_statement_invoke_error(self, p: YaccProduction) -> None:
+        """
+        selection_statement_invoke_error : IF expression statement_list
+        """
+        raise SyntaxError
 
     def p_elseif_clause(self, p: YaccProduction) -> None:
         """
@@ -395,24 +439,74 @@ class Parser(LogMixin):
         """
         func_declare : func_declare_lhs
                      | func_return_list '=' func_declare_lhs
+                     | func_declare_invoke_error
         """
         if len(p) == 2:
             p[0] = FunctionDeclareNode(return_list=[], name=p[1])
         else:
             p[0] = FunctionDeclareNode(return_list=p[1], name=p[3])
 
+    def p_func_declare_invoke_error(self, p: YaccProduction) -> None:
+        """
+        func_declare_invoke_error : func_return_list '='
+                           | func_return_list
+        """
+        raise SyntaxError
+
     def p_func_statement(self, p: YaccProduction) -> None:
         """
         func_statement : FUNCTION func_declare eostmt statement_list END
+                       | func_statement_error
         """
-        p[0] = FunctionNode(declare=p[2], body=p[4])
+        if len(p) == 2:
+            p[0] = p[1]
+        else:
+            p[0] = FunctionNode(declare=p[2], body=p[4])
+
+    def p_func_statement_error(self, p: YaccProduction) -> None:
+        """
+        func_statement_error : FUNCTION error eostmt statement_list END
+        """
+        error_message = (
+            f"{colors.WARNING}"
+            f"Syntax error at line {p.lineno(1)}! Missing: name function"
+            f"{colors.ENDC}"
+        )
+        self._error_messages.append(error_message)
+        p[0] = ErrorNode(message=error_message)
 
     def p_error(self, p: YaccProduction) -> None:
-        print(f"Syntax error in input! {p}")
+        # Panic recovery mode
+        line = p.lineno if p else ''
+        name_tok = p.type if p else p
+        self._error_messages.append(
+            f"{colors.WARNING}"
+            f"Syntax error at line {line}! Missing: {name_tok}"
+            f"{colors.ENDC}"
+        )
+        while True:
+            token = self._parser.token()
+            if not token or token.type in self._recover_table:
+                break
+        self._parser.restart()
 
 
 # TODO Debug mode
 data = '''
+a = [1; 2);
+
+b = [1; 2; 3]
+
+function [m, s]
+    n = x + x
+    m = n + x
+    s = m + n
+end
+
+if (a == 2)
+    s = 1
+
+c = 4
 
 '''
 
@@ -420,6 +514,10 @@ data = '''
 if __name__ == '__main__':
     parser = Parser(yacc_debug=True)
     ast = parser.parse(text=data, debug_level=False)
-    v = Visitor()
-    res = v.traverse_ast(ast)
-    print(res)
+    if parser.has_errors:
+        for msg in parser.errors():
+            print(msg)
+    else:
+        v = Visitor()
+        res = v.traverse_ast(ast)
+        print(res)

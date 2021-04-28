@@ -6,25 +6,25 @@ from _pytest.fixtures import SubRequest
 
 from cmp.ast import FileAST
 from cmp.grammar import Parser
-from cmp.traverse import Visitor
+from cmp.traverse.traverse_ast import Visitor
 
 MATLAB_SAMPLES = './matlab_samples/'
 PYTHON_OUTPUT = './python_output/'
 
 
 @pytest.fixture(params=[
-    (os.path.join(MATLAB_SAMPLES, 'sample_1.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_1.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_2.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_2.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_3.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_3.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_4.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_4.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_5.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_5.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_6.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_6.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_7.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_7.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_8.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_8.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_9.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_9.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_10.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_10.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_11.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_11.py')),
-    (os.path.join(MATLAB_SAMPLES, 'sample_12.m'), os.path.join(PYTHON_OUTPUT, 'output_sample_12.py'))
+    (os.path.join(MATLAB_SAMPLES, 'sample_1.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_1.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_2.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_2.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_3.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_3.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_4.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_4.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_5.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_5.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_6.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_6.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_7.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_7.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_8.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_8.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_9.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_9.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_10.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_10.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_11.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_11.py')),
+    (os.path.join(MATLAB_SAMPLES, 'sample_12.matlab'), os.path.join(PYTHON_OUTPUT, 'output_sample_12.py'))
 ])
 def sample(request: SubRequest) -> Iterator[Tuple[str, str]]:
     with open(request.param[0], "r") as matlab_file, open(request.param[1], "r") as python_file:

@@ -122,5 +122,4 @@ class Lexer(LogMixin):
         self._lexer.input(data_)
 
     def token(self) -> LexToken:
-        last_token = self._lexer.token()
-        return last_token
+        return self._lexer.token()

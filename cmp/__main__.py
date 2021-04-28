@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from cmp.cli import Command
+from cmp.cli.cli import Command
 
 
 def main() -> None:

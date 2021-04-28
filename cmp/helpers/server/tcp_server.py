@@ -6,7 +6,12 @@ from cmp.helpers import LogMixin
 
 
 class TCPServer(LogMixin):  # TODO setup logger write in file
-    """Server for service matlab compiler"""
+    """
+    Server for service matlab compiler
+    hostname - IP address or domen name local machine where is server will run
+    port - the port that the server will listen to
+    consumer - function what will give result str -> str
+    """
 
     def __init__(self, consumer: Callable[[str], str], host: str = None, port: int = None) -> None:
         self.hostname = host or os.environ.get("HOSTNAME", '127.0.0.1')
@@ -14,6 +19,7 @@ class TCPServer(LogMixin):  # TODO setup logger write in file
         self.consumer = consumer
 
     async def execute(self) -> None:
+        """Start TCP server"""
         self.logger.info(f"Start server on address {self.hostname}:{self.port}")
         print(f"Start server on address {self.hostname}:{self.port}")
         server = await asyncio.start_server(self._handle_connect, self.hostname, self.port)

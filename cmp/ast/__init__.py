@@ -10,6 +10,7 @@ from .conditional_statement import (
 from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
+from .error import ErrorNode
 from .finite_unit import ConstantNode, IdentifierNode, SimpleNode
 from .function import FunctionDeclareNode, FunctionNameNode, FunctionNode
 from .iterations import ForLoopNode, WhileLoopNode
@@ -78,5 +79,6 @@ __all__ = (
     "WhileLoopNode",
     "TransposeNode",
     "ElseIfClauseNode",
-    "ManyBranchConditionalNode"
+    "ManyBranchConditionalNode",
+    "ErrorNode"
 )
