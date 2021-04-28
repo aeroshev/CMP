@@ -12,8 +12,8 @@ class Command(ArgumentParser, LogMixin, Singleton):
     """
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-        self.chain_responsibility = CheckServerKey()
-        self.chain_responsibility.set_next(
+        self._chain_responsibility = CheckServerKey()
+        self._chain_responsibility.set_next(
             CheckStringKey()
         ).set_next(
             CheckOutputFile()
@@ -78,7 +78,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
         setattr(args, 'parser', parser)
         setattr(args, 'matlab_ast', None)
 
-        output = self.chain_responsibility.handle(args)
+        output = self._chain_responsibility.handle(args)
         if output:
             print(output)
 
