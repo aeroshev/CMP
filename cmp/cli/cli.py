@@ -1,12 +1,9 @@
-import asyncio
-import os
-from argparse import ArgumentParser, Namespace
-from typing import Optional
+from argparse import ArgumentParser
+
+from .handlers_check import CheckOutputFile, CheckServerKey, CheckStringKey, GetResult
 
 from cmp.grammar import Parser
-from cmp.helpers import BadInputError, LogMixin, Singleton
-from cmp.helpers.server import TCPServer
-from cmp.traverse import Visitor
+from cmp.helpers import LogMixin, Singleton
 
 
 class Command(ArgumentParser, LogMixin, Singleton):
@@ -15,6 +12,14 @@ class Command(ArgumentParser, LogMixin, Singleton):
     """
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+        self.chain_responsibility = CheckServerKey()
+        self.chain_responsibility.set_next(
+            CheckStringKey()
+        ).set_next(
+            CheckOutputFile()
+        ).set_next(
+            GetResult()
+        )
         self.description = 'Compiler MATLAB code to Python scripts'
         self.command_group = self.add_mutually_exclusive_group(required=True)
         self.command_group.add_argument(
@@ -71,91 +76,12 @@ class Command(ArgumentParser, LogMixin, Singleton):
         args = self.parse_args()
         parser = self._get_parser()
         setattr(args, 'parser', parser)
+        setattr(args, 'matlab_ast', None)
 
-        # Check --server key
-        if args.server:
-            keys = {
-                'host': args.host,
-                'port': args.port,
-                'consumer': self.network_execute
-            }
-            tcp_server = TCPServer(**keys)
-            try:
-                asyncio.run(tcp_server.execute())
-            except KeyboardInterrupt:
-                self.logger.info("Server shutdown")
-                return None
-
-        # Check --string key
-        text = self._get_text(args)
-        if text:
-            ast = parser.parse(text=self._get_text(args), debug_level=False)
-        else:
-            self.logger.error('Incorrect input data')
-            return None
-
-        # Check --output-file key
-        if args.output_file:
-            if not self._validate_file(args.output_file):
-                self.logger.error("Incorrect output path to file")
-                return None
-
-        visitor = self._get_visitor(filename=args.output_file)
-        try:
-            output = visitor.traverse_ast(root=ast)
-        except BadInputError as err:
-            self.logger.error(err)
-            return None
-
+        output = self.chain_responsibility.handle(args)
         if output:
-            self.logger.info(output)
-
-    def network_execute(self, message: str) -> Optional[str]:
-        """
-        Special entry point of program CMP
-        for working in TCP server
-        """
-        parser = self._get_parser()
-        if message:
-            ast = parser.parse(text=message, debug_level=False)
-        else:
-            self.logger.error('Incorrect input data')
-            return None
-
-        if parser.has_errors:
-            output = '\n'.join([msg for msg in parser.errors()])
-        else:
-            visitor = Visitor()
-            try:
-                output = visitor.traverse_ast(root=ast)
-            except BadInputError as err:
-                self.logger.error(err)
-                return None
-
-        return output
-
-    @staticmethod
-    def _validate_file(path: str) -> bool:
-        return os.path.isfile(path)
+            print(output)
 
     @staticmethod
     def _get_parser() -> Parser:
         return Parser(yacc_debug=False)
-
-    @staticmethod
-    def _get_visitor(filename: str = None) -> Visitor:
-        if filename:
-            return Visitor(filename=filename)
-        else:
-            return Visitor()
-
-    def _get_text(self, args: Namespace) -> Optional[str]:
-        if args.string:
-            return str(args.string)
-        else:
-            if not self._validate_file(args.path):
-                self.logger.error('Incorrect path file')
-                return None
-            with open(args.path, "r") as file:
-                content = file.read()
-                return content

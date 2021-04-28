@@ -6,7 +6,7 @@ from _pytest.fixtures import SubRequest
 
 from cmp.ast import FileAST
 from cmp.grammar import Parser
-from cmp.traverse import Visitor
+from cmp.traverse.traverse_ast import Visitor
 
 MATLAB_SAMPLES = './matlab_samples/'
 PYTHON_OUTPUT = './python_output/'

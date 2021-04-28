@@ -10,6 +10,7 @@ from .conditional_statement import (
 from .define_clear import ClearNode
 from .define_global import GlobalNode
 from .equality import NegativeEqualityNode, PositiveEqualityNode
+from .error import ErrorNode
 from .finite_unit import ConstantNode, IdentifierNode, SimpleNode
 from .function import FunctionDeclareNode, FunctionNameNode, FunctionNode
 from .iterations import ForLoopNode, WhileLoopNode
@@ -35,7 +36,6 @@ from .root import FileAST
 from .sparse import SparseNode
 from .transpose import TransposeNode
 from .unary_expression import UnaryExpressionNode
-from .error import ErrorNode
 
 __all__ = (
     "AssignmentNode",

@@ -1,4 +1,4 @@
-from typing import Any, List, Union, Iterator
+from typing import Any, Iterator, List, Union
 
 from ply.yacc import YaccProduction, yacc
 
