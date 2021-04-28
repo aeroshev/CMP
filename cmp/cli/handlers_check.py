@@ -71,7 +71,6 @@ class CheckServerKey(AbstractHandler):
         return output
 
     def handle(self, args: Namespace) -> Optional[str]:
-        print('Server')
         if args.server:
             parser = args.parser
             keys = {
@@ -108,7 +107,6 @@ class CheckStringKey(AbstractHandler):
                 return content
 
     def handle(self, args: Namespace) -> Optional[str]:
-        print('String')
         text = self._get_text(args)
         if text:
             matlab_ast = args.parser.parse(text=self._get_text(args), debug_level=False)
@@ -126,7 +124,6 @@ class CheckOutputFile(AbstractHandler):
     In default result show in output stream
     """
     def handle(self, args: Namespace) -> Optional[str]:
-        print('File')
         if args.output_file:
             if not self._validate_file(args.output_file):
                 print("Incorrect output path to file")
@@ -147,7 +144,6 @@ class GetResult(AbstractHandler):
             return Visitor()
 
     def handle(self, args: Namespace) -> Optional[str]:
-        print('Res')
         visitor = self._get_visitor(filename=args.output_file)
         try:
             output = visitor.traverse_ast(root=args.matlab_ast)
