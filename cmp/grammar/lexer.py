@@ -81,7 +81,8 @@ class Lexer(LogMixin):
     t_ARRAY_DIV = r"\./"
     t_ARRAY_RDIV = r"\.//"
     # Comments
-    # t_COMMENT = r"\%.*"  # TODO translate comments
+    t_string_TCOMMENT = r'[^\n]+'
+    t_string_ignore = r''
 
     def __init__(self) -> None:
         self._lexer = lex(
@@ -95,6 +96,11 @@ class Lexer(LogMixin):
 
     def t_error(self, token_: LexToken) -> None:
         """Error handler lexer"""
+        print(f"Illegal character {token_.value[0]}")
+        token_.lexer.skip(1)
+
+    def t_string_error(self, token_: LexToken) -> None:
+        """Error handler lexer for string state"""
         print(f"Illegal character {token_.value[0]}")
         token_.lexer.skip(1)
 
@@ -131,14 +137,6 @@ class Lexer(LogMixin):
         else:
             token_.lexer.begin('string')
         return token_
-
-    t_string_TCOMMENT = r'[^\n]+'
-    t_string_ignore = r''
-
-    def t_string_error(self, token_: LexToken) -> None:
-        """Error handler lexer for string state"""
-        print(f"Illegal character {token_.value[0]}")
-        token_.lexer.skip(1)
 
     def input(self, data_: str) -> None:
         self._lexer.input(data_)
