@@ -136,7 +136,7 @@ class Lexer(LogMixin):
     t_string_ignore = r''
 
     def t_string_error(self, token_: LexToken) -> None:
-        """Error handler lexer for text stringr"""
+        """Error handler lexer for string state"""
         print(f"Illegal character {token_.value[0]}")
         token_.lexer.skip(1)
 
