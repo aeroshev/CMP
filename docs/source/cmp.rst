@@ -8,20 +8,10 @@ Subpackages
    :maxdepth: 4
 
    cmp.ast
+   cmp.cli
    cmp.grammar
    cmp.helpers
    cmp.traverse
-
-Submodules
-----------
-
-CLI module
---------------
-
-.. automodule:: cmp.cli
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 Module contents
 ---------------

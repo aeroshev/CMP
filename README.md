@@ -61,3 +61,11 @@ optional arguments:
 ```shell
 tcmp --data 'a = [1; 2; 3];'
 ```
+
+## Check tests
+```shell
+pipenv shell
+pipenv install --dev
+cd tests
+pytest
+```
