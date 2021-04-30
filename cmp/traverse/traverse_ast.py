@@ -97,7 +97,7 @@ class Visitor:
             return ''
         return string
 
-    def _visit_list(self, list_nodes: List[Node]) -> List[str]:  # TODO
+    def _visit_list(self, list_nodes: List[Node]) -> List[str]:
         self._depth -= 1
         res = []
         for node in list_nodes:
@@ -106,7 +106,7 @@ class Visitor:
         return res
 
     # Additive group
-    def _visit_plus_node(self, node: PlusNode) -> str:  # TODO add pattern
+    def _visit_plus_node(self, node: PlusNode) -> str:
         lhs = self._visit(node.lhs)
         rhs = self._visit(node.rhs)
         if self.numpy_mode:

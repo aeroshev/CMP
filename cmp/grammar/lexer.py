@@ -87,7 +87,7 @@ class Lexer(LogMixin):
     def __init__(self) -> None:
         self._lexer = lex(
             module=self,
-            optimize=False,
+            optimize=True,
             debug=False,
             outputdir=abs_module_path,
             lextab='cmp_lex_tab',
@@ -143,19 +143,3 @@ class Lexer(LogMixin):
 
     def token(self) -> LexToken:
         return self._lexer.token()
-
-
-data = '''
-% Comment 1
-
-% Comment 2
-'''
-
-if __name__ == '__main__':
-    l = Lexer()
-    l.input(data)
-    while True:
-        t = l.token()
-        if t is None:
-            break
-        print(t)

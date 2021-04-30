@@ -5,11 +5,10 @@ from ply.yacc import YaccProduction, yacc
 from cmp.ast import *
 from cmp.grammar import Lexer
 from cmp.grammar.cmp_tables import abs_module_path
-from cmp.helpers import LogMixin, colors
-from cmp.traverse.traverse_ast import Visitor
+from cmp.helpers import colors
 
 
-class Parser(LogMixin):
+class Parser:
     """
     Executive parser object.
     Containing primary reduce rules.
@@ -42,7 +41,7 @@ class Parser(LogMixin):
     def __init__(
             self,
             lexer=Lexer,
-            yacc_debug=True
+            yacc_debug=False
     ) -> None:
         self._lex = lexer()
         self.tokens = self._lex.tokens
@@ -53,8 +52,7 @@ class Parser(LogMixin):
             debug=yacc_debug,
             outputdir=abs_module_path,
             tabmodule='cmp_parse_tab',
-            optimize=True,
-            errorlog=self.logger
+            optimize=True
         )
 
     precedence = (
@@ -86,11 +84,10 @@ class Parser(LogMixin):
         listed_right = [right] if len(right) == 1 else right
         return [*listed_left, *listed_right]
 
-    def parse(self, text, filename='', debug_level=True) -> Any:  # TODO Debug mode
-        return self._parser.parsedebug(
+    def parse(self, text, debug_level=False) -> Any:
+        return self._parser.parse(
             input=text,
-            lexer=self._lex,
-            debug=self.logger
+            lexer=self._lex
         )
 
     def p_primary_expression(self, p: YaccProduction) -> None:
@@ -496,25 +493,3 @@ class Parser(LogMixin):
             if not token or token.type in self._recover_table:
                 break
         self._parser.restart()
-
-
-# TODO Debug mode
-data = '''
-a = [1; 2; 3]
-
-% Comment 1
-
-% Comment 2
-'''
-
-
-if __name__ == '__main__':
-    parser = Parser(yacc_debug=True)
-    ast = parser.parse(text=data, debug_level=False)
-    if parser.has_errors:
-        for msg in parser.errors():
-            print(msg)
-    else:
-        v = Visitor()
-        res = v.traverse_ast(ast)
-        print(res)

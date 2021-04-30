@@ -6,7 +6,7 @@ from functools import partialmethod
 from typing import Optional
 
 from cmp.grammar import Parser
-from cmp.helpers import BadInputError
+from cmp.helpers import BadInputError, LogMixin
 from cmp.helpers.server import TCPServer
 from cmp.traverse.traverse_ast import Visitor
 
@@ -22,7 +22,7 @@ class Handler(ABC):
         ...
 
 
-class AbstractHandler(Handler):
+class AbstractHandler(Handler, LogMixin):
     """Abstract handler for CLI interface CMP"""
     _next_handler = None  # type: Handler
 
@@ -82,7 +82,7 @@ class CheckServerKey(AbstractHandler):
             try:
                 asyncio.run(tcp_server.execute())
             except KeyboardInterrupt:
-                print("Server shutdown")
+                self.logger.info("Server shutdown")
             return None
         else:
             return super().handle(args)
@@ -100,7 +100,7 @@ class CheckStringKey(AbstractHandler):
             return str(args.string)
         else:
             if not self._validate_file(args.path):
-                print('Incorrect path file')
+                self.logger.error('Incorrect path file')
                 return None
             with open(args.path, "r") as file:
                 content = file.read()
@@ -113,7 +113,7 @@ class CheckStringKey(AbstractHandler):
             setattr(args, 'matlab_ast', matlab_ast)
             return super().handle(args)
         else:
-            print('Incorrect input data')
+            self.logger.error('Incorrect input data')
             return None
 
 
@@ -126,7 +126,7 @@ class CheckOutputFile(AbstractHandler):
     def handle(self, args: Namespace) -> Optional[str]:
         if args.output_file:
             if not self._validate_file(args.output_file):
-                print("Incorrect output path to file")
+                self.logger.error("Incorrect output path to file")
                 return None
         return super().handle(args)
 
@@ -149,5 +149,5 @@ class GetResult(AbstractHandler):
             output = visitor.traverse_ast(root=args.matlab_ast)
             return output
         except BadInputError as err:
-            print(err)
+            self.logger.error(err)
             return None

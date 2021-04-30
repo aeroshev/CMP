@@ -80,7 +80,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
 
         output = self._chain_responsibility.handle(args)
         if output:
-            print(output)
+            self.logger.info(output)
 
     @staticmethod
     def _get_parser() -> Parser:

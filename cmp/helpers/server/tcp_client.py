@@ -3,6 +3,18 @@ import os
 from argparse import ArgumentParser, Namespace
 from typing import Optional
 
+import logging
+
+
+logging.basicConfig(
+    level=logging.INFO,
+    filename="/var/log/cmp/server.log",
+    filemode="w",
+    format="%(process)d - %(asctime)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
+
 
 class TCPClient(ArgumentParser):
     """Simple TCP client for sending in MATLAB compiler"""
@@ -49,7 +61,7 @@ class TCPClient(ArgumentParser):
         port = args.port or self.port
 
         response = asyncio.run(self._send_data(message, address, port))
-        print(response)
+        logger.info(response)
 
     @staticmethod
     def _validate_file(path: str) -> bool:
@@ -60,7 +72,7 @@ class TCPClient(ArgumentParser):
             return str(args.data)
         else:
             if not self._validate_file(args.file):
-                print('Incorrect path file')
+                logger.error('Incorrect path file')
                 return None
             with open(args.file, "r") as file:
                 content = file.read()

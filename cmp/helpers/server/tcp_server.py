@@ -5,7 +5,7 @@ from typing import Callable
 from cmp.helpers import LogMixin
 
 
-class TCPServer(LogMixin):  # TODO setup logger write in file
+class TCPServer(LogMixin):
     """
     Server for service matlab compiler
     hostname - IP address or domen name local machine where is server will run

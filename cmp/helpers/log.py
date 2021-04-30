@@ -6,13 +6,7 @@ class LogMixin:
     Class mixin for produce
     logger entire class
     """
-    # logging.basicConfig(format='%(message)s', level=logging.INFO)
-    logging.basicConfig(
-        level=logging.DEBUG,
-        filename="parselog.txt",
-        filemode="w",
-        format="%(filename)10s:%(lineno)4d:%(message)s"
-    )
+    logging.basicConfig(format='%(message)s', level=logging.INFO)
 
     @property
     def logger(self) -> logging.Logger:
