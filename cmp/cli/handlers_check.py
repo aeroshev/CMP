@@ -64,7 +64,7 @@ class CheckServerKey(AbstractHandler):
         else:
             visitor = Visitor()
             try:
-                output = visitor.traverse_ast(root=matlab_ast)
+                output = visitor.traverse_ast(root=matlab_ast) or 'Nothing'
             except BadInputError as err:
                 output = str(err)
 

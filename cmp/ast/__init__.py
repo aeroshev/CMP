@@ -1,6 +1,7 @@
 from .additive import MinusNode, PlusNode
 from .array import ArrayNode, ArrayVectorNode
 from .assigment import AssignmentNode
+from .comment import CommentNode
 from .conditional_statement import (
     ElseIfClauseNode,
     ManyBranchConditionalNode,
@@ -36,7 +37,6 @@ from .root import FileAST
 from .sparse import SparseNode
 from .transpose import TransposeNode
 from .unary_expression import UnaryExpressionNode
-from .comment import CommentNode
 
 __all__ = (
     "AssignmentNode",

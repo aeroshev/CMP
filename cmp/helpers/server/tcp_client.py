@@ -1,19 +1,13 @@
 import asyncio
+import logging
 import os
 from argparse import ArgumentParser, Namespace
 from typing import Optional
 
-import logging
-
-
-logging.basicConfig(
-    level=logging.INFO,
-    filename="/var/log/cmp/server.log",
-    filemode="w",
-    format="%(process)d - %(asctime)s - %(message)s"
-)
 logger = logging.getLogger(__name__)
-
+s_handler = logging.StreamHandler()
+s_handler.setLevel(logging.INFO)
+logger.addHandler(s_handler)
 
 
 class TCPClient(ArgumentParser):
@@ -54,11 +48,11 @@ class TCPClient(ArgumentParser):
 
     def execute(self) -> None:
         """Start TCP client in CLI"""
-        args = self.parse_args()
+        args = self.parse_args()  # type: Namespace
 
         message = self._get_text(args)
-        address = args.address or self.address
-        port = args.port or self.port
+        address = args.address or self.address  # type: str
+        port = args.port or self.port  # type: int
 
         response = asyncio.run(self._send_data(message, address, port))
         logger.info(response)
