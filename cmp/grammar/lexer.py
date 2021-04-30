@@ -76,7 +76,7 @@ class Lexer(LogMixin):
     t_ARRAY_DIV = r"\./"
     t_ARRAY_RDIV = r"\.//"
     # Comments
-    t_ignore_COMMENT = r"\%.*"  # TODO translate comments
+    t_COMMENT = r"\%.*"  # TODO translate comments
 
     def __init__(self) -> None:
         self._lexer = lex(

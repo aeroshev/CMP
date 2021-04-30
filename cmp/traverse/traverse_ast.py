@@ -149,6 +149,10 @@ class Visitor:
         rhs = self._visit(node.rhs)
         return f'{lhs} = {rhs}'
 
+    # Comment group
+    def _visit_comment_node(self, node: CommentNode) -> str:
+        return f'# {node.comment}'
+
     # Conditional statement group
     def _visit_simple_conditional_node(self, node: SimpleConditionalNode) -> str:
         main_stmt = self._visit(node.main_stmt)

@@ -36,6 +36,7 @@ from .root import FileAST
 from .sparse import SparseNode
 from .transpose import TransposeNode
 from .unary_expression import UnaryExpressionNode
+from .comment import CommentNode
 
 __all__ = (
     "AssignmentNode",
@@ -80,5 +81,6 @@ __all__ = (
     "TransposeNode",
     "ElseIfClauseNode",
     "ManyBranchConditionalNode",
-    "ErrorNode"
+    "ErrorNode",
+    "CommentNode"
 )
