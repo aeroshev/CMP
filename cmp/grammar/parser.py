@@ -263,9 +263,9 @@ class Parser(LogMixin):
 
     def p_comment_statement(self, p: YaccProduction) -> None:
         """
-        comment_statement : COMMENT
+        comment_statement : COMMENT TCOMMENT
         """
-        p[0] = CommentNode(comment=p[1])
+        p[0] = CommentNode(comment=p[2])
 
     def p_statement_list(self, p: YaccProduction) -> None:
         """
@@ -500,6 +500,8 @@ class Parser(LogMixin):
 
 # TODO Debug mode
 data = '''
+a = [1; 2; 3]
+
 % Comment 1
 
 % Comment 2

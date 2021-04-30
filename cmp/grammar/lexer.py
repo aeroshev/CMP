@@ -35,7 +35,8 @@ class Lexer(LogMixin):
         "LE_OP", "GE_OP", "EQ_OP", "NE_OP",
         "ARRAY_MUL", "ARRAY_POW", "ARRAY_DIV", "ARRAY_RDIV", "TRANSPOSE",
         "NEWLINE",
-        "COMMENT"
+        "COMMENT",
+        "TCOMMENT"
     ] + list(keywords.values()))
 
     # Ignore symbol
@@ -47,6 +48,10 @@ class Lexer(LogMixin):
         ')', '[', ']', '&', '-', '+',
         '*', '/', '\\', '>', '<', '|'
     ]
+
+    states = (
+        ('string', 'exclusive'),
+    )
 
     # Regular expressions for complex tokens
     D = r"[0-9]"
@@ -76,7 +81,7 @@ class Lexer(LogMixin):
     t_ARRAY_DIV = r"\./"
     t_ARRAY_RDIV = r"\.//"
     # Comments
-    t_COMMENT = r"\%.*"  # TODO translate comments
+    # t_COMMENT = r"\%.*"  # TODO translate comments
 
     def __init__(self) -> None:
         self._lexer = lex(
@@ -118,8 +123,41 @@ class Lexer(LogMixin):
         token_.type = 'NEWLINE'
         return token_
 
+    def t_ANY_COMMENT(self, token_: LexToken) -> LexToken:
+        r"""[\%]|[\n]"""
+        if token_.lexer.current_state() == 'string':
+            token_.type = 'NEWLINE'
+            token_.lexer.begin('INITIAL')
+        else:
+            token_.lexer.begin('string')
+        return token_
+
+    t_string_TCOMMENT = r'[^\n]+'
+    t_string_ignore = r''
+
+    def t_string_error(self, token_: LexToken) -> None:
+        """Error handler lexer for text comment stater"""
+        print(f"Illegal character {token_.value[0]}")
+        token_.lexer.skip(1)
+
     def input(self, data_: str) -> None:
         self._lexer.input(data_)
 
     def token(self) -> LexToken:
         return self._lexer.token()
+
+
+data = '''
+% Comment 1
+
+% Comment 2
+'''
+
+if __name__ == '__main__':
+    l = Lexer()
+    l.input(data)
+    while True:
+        t = l.token()
+        if t is None:
+            break
+        print(t)

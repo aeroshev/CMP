@@ -151,7 +151,7 @@ class Visitor:
 
     # Comment group
     def _visit_comment_node(self, node: CommentNode) -> str:
-        return f'# {node.comment}'
+        return f'#{node.comment}'
 
     # Conditional statement group
     def _visit_simple_conditional_node(self, node: SimpleConditionalNode) -> str:

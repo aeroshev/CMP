@@ -5,6 +5,4 @@ else
     m = 'to_do'
 end
 
-
-
 % Just a comment
