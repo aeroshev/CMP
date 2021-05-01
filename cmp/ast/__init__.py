@@ -1,6 +1,7 @@
 from .additive import MinusNode, PlusNode
 from .array import ArrayNode, ArrayVectorNode
 from .assigment import AssignmentNode
+from .comment import CommentNode
 from .conditional_statement import (
     ElseIfClauseNode,
     ManyBranchConditionalNode,
@@ -80,5 +81,6 @@ __all__ = (
     "TransposeNode",
     "ElseIfClauseNode",
     "ManyBranchConditionalNode",
-    "ErrorNode"
+    "ErrorNode",
+    "CommentNode"
 )

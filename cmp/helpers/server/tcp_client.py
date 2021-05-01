@@ -1,7 +1,13 @@
 import asyncio
+import logging
 import os
 from argparse import ArgumentParser, Namespace
 from typing import Optional
+
+logger = logging.getLogger(__name__)
+s_handler = logging.StreamHandler()
+s_handler.setLevel(logging.INFO)
+logger.addHandler(s_handler)
 
 
 class TCPClient(ArgumentParser):
@@ -42,14 +48,14 @@ class TCPClient(ArgumentParser):
 
     def execute(self) -> None:
         """Start TCP client in CLI"""
-        args = self.parse_args()
+        args = self.parse_args()  # type: Namespace
 
         message = self._get_text(args)
-        address = args.address or self.address
-        port = args.port or self.port
+        address = args.address or self.address  # type: str
+        port = args.port or self.port  # type: int
 
         response = asyncio.run(self._send_data(message, address, port))
-        print(response)
+        logger.info(response)
 
     @staticmethod
     def _validate_file(path: str) -> bool:
@@ -60,7 +66,7 @@ class TCPClient(ArgumentParser):
             return str(args.data)
         else:
             if not self._validate_file(args.file):
-                print('Incorrect path file')
+                logger.error('Incorrect path file')
                 return None
             with open(args.file, "r") as file:
                 content = file.read()

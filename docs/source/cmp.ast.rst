@@ -1,4 +1,4 @@
-AST package
+Ast package
 ===============
 
 Submodules
@@ -24,6 +24,14 @@ Assigment module
 ------------------------
 
 .. automodule:: cmp.ast.assigment
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Comment module
+----------------------
+
+.. automodule:: cmp.ast.comment
    :members:
    :undoc-members:
    :show-inheritance:
@@ -56,6 +64,14 @@ Equality module
 -----------------------
 
 .. automodule:: cmp.ast.equality
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Error module
+--------------------
+
+.. automodule:: cmp.ast.error
    :members:
    :undoc-members:
    :show-inheritance:

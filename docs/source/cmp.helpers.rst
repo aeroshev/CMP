@@ -20,6 +20,14 @@ Camel to snake module
    :undoc-members:
    :show-inheritance:
 
+Colors module
+-------------------------
+
+.. automodule:: cmp.helpers.colors
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Exceptions module
 -----------------------------
 
