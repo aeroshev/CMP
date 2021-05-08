@@ -51,7 +51,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
             '-v',
             '--version',
             action='version',
-            version='Pycmp: 1.0.0'
+            version='Pycmp: 0.1.0'
         )
         self.add_argument(
             '-P',
