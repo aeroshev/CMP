@@ -1,0 +1,3 @@
+[run]
+source = cmp
+omit = */cmp_tables*

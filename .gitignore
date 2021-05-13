@@ -141,3 +141,6 @@ parselog.txt
 
 # Output file
 output.py
+
+# Local dirs
+images

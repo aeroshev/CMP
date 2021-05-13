@@ -453,7 +453,7 @@ class Parser:
     def p_func_declare_invoke_error(self, p: YaccProduction) -> None:
         """
         func_declare_invoke_error : func_return_list '='
-                           | func_return_list
+                                  | func_return_list
         """
         raise SyntaxError
 
