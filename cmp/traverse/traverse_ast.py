@@ -12,7 +12,7 @@ class Visitor:
     numpy_mode - if activated, ordinary operation will be translated
         in numpy operations
     filename - name of file where will be written python code
-    _depth - inner variable for count ident
+    _depth - inner variable for count indent
     _stack - store for return value of function
     """
     keywords = {
