@@ -10,13 +10,14 @@ setup(
     name="pycmp",
     version="0.1.0",
     python_requires=">=3.9.0",
+    license="MIT",
     packages=find_packages(),
     include_package_data=True,
     install_requieres=[
         "ply==3.11",
         "numpy==1.20.2"
     ],
-    extra_require={
+    extra_requires={
         "linter_pack": [
             "mypy==0.812",
             "isort==5.7.0",
@@ -31,8 +32,19 @@ setup(
             "pycmp = cmp.__main__:main"
         ]
     },
-    download_url="",
+    keywords=['MATLAB', 'Compiler'],
+    download_url="https://github.com/aeroshev/CMP/archive/refs/tags/v0.1.0-alpha.tar.gz",
+    url="https://github.com/aeroshev/CMP",
     author="Artem Eroshev",
+    author_email="faster.boy2694@gmail.com",
     description="compiler matlab to python",
-    long_description=read("README.md")
+    long_description=read("README.md"),
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Compiler',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.9'
+    ]
 )
