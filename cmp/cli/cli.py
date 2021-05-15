@@ -1,3 +1,4 @@
+from subprocess import Popen, PIPE, STDOUT
 from argparse import ArgumentParser
 
 from .handlers_check import CheckOutputFile, CheckServerKey, CheckStringKey, GetResult
@@ -51,7 +52,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
             '-v',
             '--version',
             action='version',
-            version='Pycmp: 0.1.0'
+            version='Pycmp: 0.1.1'
         )
         self.add_argument(
             '-P',
@@ -73,6 +74,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
         Entry point of program CMP
         for executed in command line
         """
+
         args = self.parse_args()
         parser = self._get_parser()
         setattr(args, 'parser', parser)
