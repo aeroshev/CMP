@@ -1,6 +1,17 @@
 # CMP
 This's compiler MATLAB to python
 
+# Install from PYPI
+Before install depencies
+```shell
+pip install ply==3.11
+```
+After install package
+```shell
+pip install pycmp
+```
+Homepage on PYPI - https://pypi.org/project/pycmp/0.1.0/
+
 # Install CMP
 Base require `Python 3.9` or newer
 
