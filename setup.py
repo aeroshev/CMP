@@ -38,11 +38,10 @@ setup(
     author="Artem Eroshev",
     author_email="faster.boy2694@gmail.com",
     description="compiler matlab to python",
-    long_description=read("README.md"),
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
-        'Topic :: Software Development :: Compiler',
+        'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.9'
