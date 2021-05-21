@@ -2,7 +2,7 @@ import asyncio
 import os
 from abc import ABC, abstractmethod
 from argparse import Namespace
-from functools import partialmethod
+from functools import partial
 from typing import Optional
 
 from cmp.grammar import Parser
@@ -73,10 +73,11 @@ class CheckServerKey(AbstractHandler):
     def handle(self, args: Namespace) -> Optional[str]:
         if args.server:
             parser = args.parser
+            print(parser)
             keys = {
                 'host': args.host,
                 'port': args.port,
-                'consumer': partialmethod(self.network_execute, parser=parser)
+                'consumer': partial(self.network_execute, parser=parser)
             }
             tcp_server = TCPServer(**keys)
             try:
