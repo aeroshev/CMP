@@ -68,12 +68,12 @@ class CheckServerKey(AbstractHandler):
             except BadInputError as err:
                 output = str(err)
 
+        parser.flush_errors()
         return output
 
     def handle(self, args: Namespace) -> Optional[str]:
         if args.server:
             parser = args.parser
-            print(parser)
             keys = {
                 'host': args.host,
                 'port': args.port,
@@ -81,7 +81,7 @@ class CheckServerKey(AbstractHandler):
             }
             tcp_server = TCPServer(**keys)
             try:
-                asyncio.run(tcp_server.execute())
+                tcp_server.execute()
             except KeyboardInterrupt:
                 self.logger.info("Server shutdown")
             return None

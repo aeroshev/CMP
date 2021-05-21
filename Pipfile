@@ -14,6 +14,7 @@ pytest = "==6.2.2"
 sphinx = "==3.5.4"
 rinohtype = "==0.5.2"
 coverage = "==5.5"
+wheel = "==0.36.2"
 
 [requires]
 python_version = "3.9"

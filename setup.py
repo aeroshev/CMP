@@ -8,7 +8,7 @@ def read(filename: str) -> str:
 
 setup(
     name="pycmp",
-    version="0.1.1",
+    version="0.1.2",
     python_requires=">=3.9.0",
     license="MIT",
     packages=find_packages(),

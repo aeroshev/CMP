@@ -52,7 +52,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
             '-v',
             '--version',
             action='version',
-            version='Pycmp: 0.1.1'
+            version='Pycmp: 0.1.2'
         )
         self.add_argument(
             '-P',
@@ -81,6 +81,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
         setattr(args, 'matlab_ast', None)
 
         output = self._chain_responsibility.handle(args)
+        parser.flush_errors()
         if output:
             self.logger.info(output)
 
