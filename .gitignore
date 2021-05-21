@@ -144,3 +144,6 @@ output.py
 
 # Local dirs
 images
+
+# Mac OS
+.DS_Store
