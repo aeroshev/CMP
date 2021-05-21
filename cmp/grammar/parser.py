@@ -69,6 +69,9 @@ class Parser:
         for err_message in self._error_messages:
             yield err_message
 
+    def flush_errors(self) -> None:
+        self._error_messages = []
+
     def _lhs_rhs_expression(self, p: YaccProduction) -> None:
         if len(p) == 4:
             p[0] = self.handlers[p[2]](lhs=p[1], rhs=p[3])

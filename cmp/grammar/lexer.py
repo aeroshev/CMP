@@ -96,12 +96,12 @@ class Lexer(LogMixin):
 
     def t_error(self, token_: LexToken) -> None:
         """Error handler lexer"""
-        print(f"Illegal character {token_.value[0]}")
+        self.logger.info(f"Illegal character {token_.value[0]}")
         token_.lexer.skip(1)
 
     def t_string_error(self, token_: LexToken) -> None:
         """Error handler lexer for string state"""
-        print(f"Illegal character {token_.value[0]}")
+        self.logger.info(f"Illegal character {token_.value[0]}")
         token_.lexer.skip(1)
 
     @TOKEN(constant)
