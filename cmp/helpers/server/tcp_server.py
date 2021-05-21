@@ -27,11 +27,13 @@ class TCPServer(ServerLog):
 
     async def _handle_connect(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter) -> None:
         data = await reader.read()
+        self.logger.info(f'Receive bytes {data}')
         message = data.decode(encoding='utf-8')
         addr = writer.get_extra_info('peername')
         self.logger.info(f"Received data from {addr[0]}:{addr[1]}")
 
         response = self.consumer(message)
+        self.logger.info(f'Parse data: {response}')
         if response is None:
             self.logger.error('Parser return not valid result')
             response = 'Internal error'
