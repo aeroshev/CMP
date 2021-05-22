@@ -2,8 +2,8 @@ import re
 
 from ply.lex import TOKEN, LexToken, lex
 
-from cmp.grammar.cmp_tables import abs_module_path
-from cmp.helpers import LogMixin
+from pycmp.grammar.cmp_tables import abs_module_path
+from pycmp.helpers import LogMixin
 
 
 class Lexer(LogMixin):

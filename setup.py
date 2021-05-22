@@ -8,7 +8,7 @@ def read(filename: str) -> str:
 
 setup(
     name="pycmp",
-    version="0.1.2",
+    version="0.1.3",
     python_requires=">=3.9.0",
     license="MIT",
     packages=find_packages(),
@@ -28,7 +28,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "pycmp = cmp.__main__:main"
+            "pycmp = pycmp.__main__:main"
         ]
     },
     keywords=['MATLAB', 'Compiler'],

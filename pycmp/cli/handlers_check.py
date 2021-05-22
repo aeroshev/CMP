@@ -5,10 +5,10 @@ from argparse import Namespace
 from functools import partial
 from typing import Optional
 
-from cmp.grammar import Parser
-from cmp.helpers import BadInputError, LogMixin
-from cmp.helpers.server import TCPServer
-from cmp.traverse.traverse_ast import Visitor
+from pycmp.grammar import Parser
+from pycmp.helpers import BadInputError, LogMixin
+from pycmp.helpers.server import TCPServer
+from pycmp.traverse.traverse_ast import Visitor
 
 
 class Handler(ABC):

@@ -3,8 +3,8 @@ from argparse import ArgumentParser
 
 from .handlers_check import CheckOutputFile, CheckServerKey, CheckStringKey, GetResult
 
-from cmp.grammar import Parser
-from cmp.helpers import LogMixin, Singleton
+from pycmp.grammar import Parser
+from pycmp.helpers import LogMixin, Singleton
 
 
 class Command(ArgumentParser, LogMixin, Singleton):
@@ -52,7 +52,7 @@ class Command(ArgumentParser, LogMixin, Singleton):
             '-v',
             '--version',
             action='version',
-            version='Pycmp: 0.1.2'
+            version='Pycmp: 0.1.3'
         )
         self.add_argument(
             '-P',

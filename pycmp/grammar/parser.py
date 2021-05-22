@@ -2,10 +2,10 @@ from typing import Any, Iterator, List, Union
 
 from ply.yacc import YaccProduction, yacc
 
-from cmp.ast import *
-from cmp.grammar import Lexer
-from cmp.grammar.cmp_tables import abs_module_path
-from cmp.helpers import colors
+from pycmp.ast import *
+from pycmp.grammar import Lexer
+from pycmp.grammar.cmp_tables import abs_module_path
+from pycmp.helpers import colors
 
 
 class Parser:

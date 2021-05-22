@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from cmp.cli.cli import Command
+from pycmp.cli.cli import Command
 
 
 def main() -> None:

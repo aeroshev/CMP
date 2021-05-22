@@ -1,7 +1,7 @@
 from typing import Any, Iterator, List, Optional, TextIO, Tuple, Union
 
-from cmp.ast import *
-from cmp.helpers import BadInputError, camel_to_snake, colors
+from pycmp.ast import *
+from pycmp.helpers import BadInputError, camel_to_snake, colors
 
 
 class Visitor:
