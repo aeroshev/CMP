@@ -21,22 +21,22 @@ class TCPServer(LogMixin):
         """Start TCP server"""
         self.logger.info(f"Start server on address {self.hostname}:{self.port}")
 
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.bind((self.hostname, self.port))
-        sock.listen(1)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind((self.hostname, self.port))
+            sock.listen(1)
 
-        while True:
-            try:
-                conn, addr = sock.accept()
-                self.logger.info(f"Receive data from {addr}")
+            while True:
+                try:
+                    conn, addr = sock.accept()
+                    self.logger.info(f"Received data from {addr}")
 
-                data = conn.recv(8192)
-                response = self.consumer(data.decode(encoding='utf-8'))
-                if not response:
-                    response = 'Internal error'
-                conn.send(response.encode(encoding='utf-8'))
+                    data = conn.recv(8192)
+                    response = self.consumer(data.decode(encoding='utf-8'))
+                    if not response:
+                        response = 'Internal error'
+                    conn.send(response.encode(encoding='utf-8'))
 
-                conn.close()
-            except KeyboardInterrupt:
-                break
-        self.logger.info('Server shutdown')
+                    conn.close()
+                except KeyboardInterrupt:
+                    break
+            self.logger.info('Server shutdown')
