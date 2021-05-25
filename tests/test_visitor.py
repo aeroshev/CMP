@@ -6,9 +6,9 @@ from _pytest.fixtures import SubRequest
 
 from .conftest import CURRENT_DIR
 
-from cmp.ast import FileAST
-from cmp.grammar import Parser
-from cmp.traverse.traverse_ast import Visitor
+from pycmp.ast import FileAST
+from pycmp.grammar import Parser
+from pycmp.traverse.traverse_ast import Visitor
 
 MATLAB_SAMPLES = os.path.join(CURRENT_DIR, 'matlab_samples/')
 PYTHON_OUTPUT = os.path.join(CURRENT_DIR, 'python_output/')

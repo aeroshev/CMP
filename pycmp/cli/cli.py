@@ -1,4 +1,3 @@
-from subprocess import Popen, PIPE, STDOUT
 from argparse import ArgumentParser
 
 from .handlers_check import CheckOutputFile, CheckServerKey, CheckStringKey, GetResult
@@ -74,7 +73,6 @@ class Command(ArgumentParser, LogMixin, Singleton):
         Entry point of program CMP
         for executed in command line
         """
-
         args = self.parse_args()
         parser = self._get_parser()
         setattr(args, 'parser', parser)

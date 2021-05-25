@@ -2,7 +2,7 @@ from typing import Iterator
 
 import pytest
 
-from cmp.grammar.lexer import Lexer
+from pycmp.grammar.lexer import Lexer
 
 
 @pytest.fixture

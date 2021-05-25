@@ -6,7 +6,7 @@ from _pytest.fixtures import SubRequest
 
 from .conftest import CURRENT_DIR
 
-from cmp.grammar import Parser
+from pycmp.grammar import Parser
 
 MATLAB_SAMPLES = os.path.join(CURRENT_DIR, 'error_samples/')
 
