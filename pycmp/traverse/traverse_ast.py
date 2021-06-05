@@ -20,7 +20,8 @@ class Visitor:
         'ones': 'np.ones',
         'rand': 'np.random',
         'eye': 'np.eye',
-        'diag': 'np.diag'
+        'diag': 'np.diag',
+        'disp': 'print'
     }
 
     def __init__(self, numpy_mode: bool = False, filename: str = None) -> None:

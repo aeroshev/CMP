@@ -7,3 +7,5 @@ function m = solver(ai,af,w)
     a = ai;
     m = [];
 end
+
+disp(solver(0, 0, 0))
